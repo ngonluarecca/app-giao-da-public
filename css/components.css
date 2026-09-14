@@ -1,0 +1,2902 @@
+/* ==========================================================================
+   DA-THAIHA: UI COMPONENTS
+   ========================================================================== */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-animation {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 8px;
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  user-select: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #0284c7);
+  color: white;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--bg-main);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-outline-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.btn-outline-danger:hover, .btn-outline-danger:active {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: var(--danger);
+  opacity: 1;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: var(--radius-lg);
+}
+
+/* Compact Camera Capture Button */
+.hero-camera-card {
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(2, 132, 199, 0.25);
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.hero-camera-card:active {
+  transform: scale(0.98);
+}
+
+.hero-camera-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-camera-content {
+  flex: 1;
+  text-align: left;
+}
+
+.hero-camera-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-camera-sub {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Fixed Order Action Bar (Cố định phía dưới màn hình trên bottom nav) */
+.fixed-order-action-bar {
+  position: fixed;
+  bottom: var(--bottom-nav-height);
+  left: 0;
+  right: 0;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1.5px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 10px 14px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 99;
+  display: flex;
+  gap: 8px;
+}
+
+/* Sticky Search Bar (Cố định ở trên đầu khi cuộn danh sách) */
+.sticky-search-bar {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 45;
+  background: var(--bg-main);
+  padding: 4px 0 6px 0;
+  margin-bottom: 4px;
+}
+
+/* Floating Action Button (+) */
+.fab-btn {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #0284c7);
+  color: white;
+  border: none;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 95;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.fab-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.6);
+}
+
+.fab-btn:active {
+  transform: scale(0.94);
+}
+
+/* Recent Orders Scrollable Box (Chỉ hiện 1-2 đơn) */
+.recent-orders-scroll-box {
+  max-height: 136px;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recent-orders-scroll-box::-webkit-scrollbar {
+  width: 4px;
+}
+.recent-orders-scroll-box::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+/* Photo GPS & Time Single-line Mini Badge */
+.photo-gps-mini-badge {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Image Preview & EXIF Status */
+.image-preview-box {
+  position: relative;
+  width: 100%;
+  max-height: 180px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview-box img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* Customer Searchable Single-Line Dropdown Select */
+.customer-select-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.customer-search-input-box, .customer-input-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2px 8px;
+  transition: var(--transition);
+}
+
+.customer-search-input-box:focus-within, .customer-input-box:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.customer-search-input, .customer-search-field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+}
+
+.btn-toggle-customer-dropdown {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-toggle-customer-dropdown:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.btn-clear-customer-search {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-clear-customer-search:hover {
+  color: var(--danger);
+}
+
+/* Generic Clear Button for All Search Inputs */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-input-wrapper input.form-control {
+  padding-right: 36px !important;
+  width: 100%;
+}
+
+.btn-input-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(100, 116, 139, 0.16);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 30;
+  transition: all 0.15s ease;
+  line-height: 1;
+  padding: 0;
+}
+
+/* Tự động hiển thị nút xóa X qua CSS ngay khi ô tìm kiếm có ký tự (không phụ thuộc JS) */
+.search-input-wrapper input:not(:placeholder-shown) + .btn-input-clear,
+.search-input-wrapper input:not(:placeholder-shown) ~ .btn-input-clear,
+.customer-search-input-box input:not(:placeholder-shown) + .btn-clear-customer-search,
+.customer-search-input-box input:not(:placeholder-shown) ~ .btn-clear-customer-search {
+  display: flex !important;
+}
+
+[data-theme="dark"] .btn-input-clear {
+  background: rgba(255, 255, 255, 0.22);
+  color: #f1f5f9;
+}
+
+.btn-input-clear:hover,
+.btn-input-clear:active {
+  background: var(--danger) !important;
+  color: #ffffff !important;
+  transform: translateY(-50%) scale(1.12);
+}
+
+.customer-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+  z-index: 500;
+  display: none;
+}
+
+.customer-dropdown-menu.active {
+  display: block;
+}
+
+.customer-dropdown-header {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.customer-dropdown-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.customer-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.customer-dropdown-item:hover, .customer-dropdown-item.selected {
+  background: var(--primary-light);
+}
+
+/* Product Section: Compact Row Layout */
+.product-compact-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-compact-row {
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  transition: var(--transition);
+}
+
+.product-compact-row.active {
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+/* Main single line: [Tên Sản phẩm] [SL Counter] [Đơn giá Counter] */
+.product-line-main {
+  display: grid;
+  grid-template-columns: 60px 1fr 1.3fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-name-col, .product-label-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.counter-mini-box, .counter-mini {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  height: 36px;
+}
+
+.counter-mini-box:focus-within, .counter-mini:focus-within {
+  border-color: var(--primary);
+}
+
+.btn-mini-counter {
+  width: 32px;
+  height: 36px;
+  background: var(--bg-card);
+  border: none;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.btn-mini-counter:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-mini-counter:active {
+  background: var(--primary);
+  color: white;
+}
+
+.input-mini-counter {
+  flex: 1;
+  min-width: 30px;
+  width: 100%;
+  height: 36px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  outline: none;
+  font-family: inherit;
+  padding: 0 2px;
+}
+
+/* Sub-row: Căn thẳng hàng hoàn hảo với cột SL và cột Giá phía trên */
+.product-line-sub {
+  display: grid;
+  grid-template-columns: 60px 1fr 1.3fr;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.sub-empty-col {
+  width: 100%;
+}
+
+.quick-sl-group {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-quick-chip, .btn-quick-plus5 {
+  flex: 1;
+  padding: 4px 2px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  color: var(--primary);
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.btn-quick-chip:hover, .btn-quick-plus5:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.price-chips-group {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-price-chip {
+  flex: 1;
+  padding: 4px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-price-chip:hover, .btn-price-chip.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Checkbox Toggle Label in Header */
+.product-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.product-checkbox-label:hover {
+  border-color: var(--primary);
+}
+
+.product-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+/* Payment Tabs & Chips */
+.payment-tabs, .payment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.payment-tab-btn, .payment-chip {
+  padding: 8px 4px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.payment-tab-btn:hover, .payment-chip:hover {
+  border-color: #059669;
+  color: #059669;
+  background: rgba(5, 150, 105, 0.06);
+}
+
+/* Khi được chọn: Đều chuyển sang màu xanh ngọc nổi bật giống Ảnh 2 */
+.payment-tab-btn.active, 
+.payment-tab-btn.selected, 
+.payment-chip.selected {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(5, 150, 105, 0.35);
+}
+
+[data-theme="dark"] .payment-tab-btn,
+[data-theme="dark"] .payment-chip {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .payment-tab-btn.active,
+[data-theme="dark"] .payment-chip.selected {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+/* Total Summary Bar */
+.order-summary-box {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  margin-top: 6px;
+  margin-bottom: 54px;
+  box-shadow: var(--shadow-lg);
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.summary-total {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
+/* Modal Popup */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html:has(.modal-backdrop.active),
+body:has(.modal-backdrop.active),
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+#edit-order-modal {
+  z-index: 1250;
+}
+
+#vietqr-modal {
+  z-index: 1300;
+}
+
+.order-photo-edit-wrapper {
+  background: var(--bg-main);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.order-photo-edit-preview {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.order-photo-edit-preview img {
+  max-height: 140px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+.modal-sheet {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: var(--max-content-width);
+  max-height: 88vh;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 20px 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-backdrop.active .modal-sheet {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+.form-label .required {
+  color: var(--danger);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-size: 14px;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.form-control[readonly] {
+  background: var(--border-color);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* VietQR Modal Display */
+.vietqr-card {
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-main);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.vietqr-image {
+  max-width: 240px;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  margin: 0 auto 12px;
+  display: block;
+  background: white;
+  padding: 8px;
+}
+
+/* Toast Notifications */
+#toast-container {
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 90%;
+  max-width: 380px;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(15, 23, 42, 0.96);
+  color: white;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideDown 0.22s ease-out;
+  pointer-events: auto;
+}
+
+.toast.success { background: #064e3b; border-left: 4px solid var(--success); }
+.toast.error { background: #7f1d1d; border-left: 4px solid var(--danger); }
+.toast.info { background: #0c4a6e; border-left: 4px solid var(--secondary); }
+.toast.warning { background: #78350f; border-left: 4px solid var(--warning); }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   INTERACTIVE MAP & PHOTO PIN STYLES (LEAFLET)
+   ========================================================================== */
+.map-view-layout {
+  display: flex;
+  gap: 12px;
+  height: calc(100vh - var(--header-height) - var(--bottom-nav-height) - 30px);
+  min-height: 520px;
+  position: relative;
+}
+
+.map-sidebar-panel {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.map-sidebar-header {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.map-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.map-sidebar-card {
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.map-sidebar-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.map-sidebar-card.active {
+  border-color: var(--primary);
+  background: rgba(2, 132, 199, 0.08);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.sidebar-cust-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.sidebar-cust-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-cust-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.map-canvas-container {
+  flex: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  position: relative;
+  box-shadow: var(--shadow-md);
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+#customer-map {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+}
+
+/* Floating Layer Controls on Map */
+.map-floating-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+}
+
+.btn-map-layer {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-map-layer.active {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-map-locate {
+  position: absolute;
+  bottom: 24px;
+  left: 14px;
+  z-index: 1000;
+  background: white;
+  color: #1e293b;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+
+/* Custom Photo Pin Marker (iOS Photos Style) */
+.custom-photo-pin-icon {
+  background: transparent;
+  border: none;
+}
+
+.photo-pin-container {
+  position: relative;
+  width: 44px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.photo-pin-container:hover, .photo-pin-container.active-pin {
+  transform: scale(1.18);
+  z-index: 9999 !important;
+}
+
+.photo-pin-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2.5px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-pin-bubble img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-pin-bubble .pin-initial {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.photo-pin-tail {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid white;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+  margin-top: -2px;
+}
+
+.active-pin .photo-pin-bubble {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.4), 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.active-pin .photo-pin-tail {
+  border-top-color: #0284c7;
+}
+
+/* User Location GPS Pulse Dot */
+.user-gps-pulse-marker {
+  position: relative;
+}
+
+.gps-pulse-core {
+  width: 14px;
+  height: 14px;
+  background: #0284c7;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.8);
+}
+
+.gps-pulse-ring {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(2, 132, 199, 0.3);
+  animation: gpsPulse 2s infinite;
+}
+
+@keyframes gpsPulse {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Custom Leaflet Popup */
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+  border-radius: var(--radius-lg);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+
+.custom-leaflet-popup .leaflet-popup-content {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.map-customer-popup {
+  padding: 12px;
+}
+
+.map-customer-popup .popup-thumb {
+  width: 100%;
+  height: 110px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.map-customer-popup .popup-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.map-customer-popup h4 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 4px 0 2px 0;
+  color: #0f172a;
+}
+
+.map-customer-popup p {
+  font-size: 12px;
+  color: #475569;
+  margin: 2px 0;
+}
+
+.map-customer-popup .popup-dist {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+.map-customer-popup .popup-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+/* Responsive Mobile Map */
+@media (max-width: 768px) {
+  .map-view-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - var(--header-height) - var(--bottom-nav-height) - 10px);
+  }
+
+  .map-sidebar-panel {
+    width: 100%;
+    max-height: 280px;
+    order: 2;
+  }
+
+  .map-canvas-container {
+    height: 380px;
+    min-height: 340px;
+    order: 1;
+  }
+}
+
+/* ====================================================================
+   HAMBURGER DROPDOWN MENU (MENU 3 GẠCH)
+   ==================================================================== */
+.hamburger-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  z-index: 1060;
+  display: none;
+  animation: fadeInDown 0.18s ease-out;
+}
+
+.hamburger-dropdown-menu.active {
+  display: block;
+}
+
+.hamburger-menu-header {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 4px;
+}
+
+.hamburger-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hamburger-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.hamburger-menu-item:hover {
+  background: var(--bg-main);
+  color: var(--primary);
+}
+
+.hamburger-menu-item.item-danger {
+  color: var(--danger);
+  border-top: 1px solid var(--border-color);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.hamburger-menu-item.item-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====================================================================
+   BANK ACCOUNTS MANAGEMENT CARDS
+   ==================================================================== */
+.bank-accounts-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.bank-account-card {
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: var(--transition);
+}
+
+.bank-account-card.is-default {
+  border-color: var(--primary);
+  background: rgba(2, 132, 199, 0.04);
+}
+
+.bank-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.bank-pill-code {
+  background: var(--primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.bank-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.bank-card-reorder-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-icon-mini {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  transition: var(--transition);
+}
+
+.btn-icon-mini:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.bank-card-body {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.bank-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+
+/* ====================================================================
+   DEBT MANAGEMENT (CÔNG NỢ) STYLES
+   ==================================================================== */
+
+.debt-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 640px) {
+  .debt-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.debt-customer-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.debt-customer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-filter-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.btn-filter-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-filter-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.debt-order-select-item {
+  border-radius: 6px;
+  user-select: none;
+}
+
+.debt-order-select-item:hover {
+  background: var(--primary-light);
+}
+
+/* ====================================================================
+   SWIPE-TO-REVEAL ACTIONS (STICKY NOTES / IOS STYLE)
+   ==================================================================== */
+.swipe-card-wrapper,
+.swipe-item-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  touch-action: pan-y;
+  user-select: none;
+  background: var(--bg-card);
+}
+
+.swipe-actions-bg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 140px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  z-index: 1;
+}
+
+.swipe-actions-bg.swipe-actions-3-btns {
+  width: 210px;
+}
+
+.swipe-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  gap: 3px;
+  text-decoration: none;
+}
+
+.swipe-action-btn:active {
+  opacity: 0.85;
+}
+
+.swipe-btn-edit {
+  background: #0284c7;
+}
+
+.swipe-btn-delete {
+  background: #ef4444;
+}
+
+.swipe-btn-lock {
+  background: #d97706;
+}
+
+.swipe-btn-unlock {
+  background: #059669;
+}
+
+.swipe-actions-3-btns {
+  width: 210px;
+}
+
+.swipe-content-front {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-card);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+  margin-bottom: 0 !important;
+  border-radius: var(--radius-md);
+}
+
+.swipe-content-front.is-swiped {
+  transform: translateX(-140px);
+}
+
+.swipe-card-wrapper:has(.swipe-actions-3-btns) .swipe-content-front.is-swiped,
+.swipe-item-container:has(.swipe-actions-3-btns) .swipe-content-front.is-swiped,
+.swipe-actions-3-btns ~ .swipe-content-front.is-swiped,
+.swipe-actions-3-btns + .swipe-content-front.is-swiped {
+  transform: translateX(-210px);
+}
+
+.swipe-toggle-btn {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease;
+  user-select: none;
+}
+
+.swipe-card-wrapper:has(.swipe-content-front.is-swiped) .swipe-toggle-btn {
+  transform: rotate(180deg);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ====================================================================
+   DEBT MULTI-SELECT MODE
+   ==================================================================== */
+.debt-customer-card {
+  position: relative;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  user-select: none;
+}
+
+.debt-customer-card.is-selected {
+  background: rgba(2, 132, 199, 0.1) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+.debt-checkbox-box {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.debt-select-mode .debt-checkbox-box {
+  display: flex;
+}
+
+.debt-select-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Print Optimization for Debt Statement Invoice & Reconciliation */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #debt-statement-modal,
+  #debt-statement-modal *,
+  #debt-reconciliation-modal,
+  #debt-reconciliation-modal * {
+    visibility: visible;
+  }
+  #debt-statement-modal,
+  #debt-reconciliation-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: transparent;
+    display: block !important;
+  }
+  #debt-statement-modal .modal-header,
+  #debt-statement-modal .btn,
+  #debt-statement-modal .flex,
+  #debt-reconciliation-modal .modal-header,
+  #debt-reconciliation-modal .recon-no-print,
+  #debt-reconciliation-modal .recon-action-bar {
+    display: none !important;
+  }
+  #printable-debt-statement,
+  #printable-recon-statement {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ====================================================================
+   REVENUE & REPORT MODULE (DOANH THU)
+   ==================================================================== */
+.revenue-mode-tabs {
+  display: flex;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 3px;
+}
+
+.revenue-mode-pill {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.revenue-mode-pill.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.3);
+}
+
+.revenue-metric-chips {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.revenue-metric-chip {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.revenue-metric-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.revenue-metric-chip.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.rev-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 4px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.rev-rank-badge.rank-1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+}
+
+.rev-rank-badge.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: white;
+  box-shadow: 0 2px 6px rgba(148, 163, 184, 0.4);
+}
+
+.rev-rank-badge.rank-3 {
+  background: linear-gradient(135deg, #b45309, #78350f);
+  color: white;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.4);
+}
+
+.rev-rank-badge.rank-normal {
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.rev-customer-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rev-customer-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .rev-progress-track {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .revenue-metric-chip.active {
+  background: rgba(2, 132, 199, 0.2);
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+/* ==================================================================== */
+/* EXPENSE MODULE (QUẢN LÝ CHI PHÍ - MISA STYLE)                       */
+/* ==================================================================== */
+
+.expense-header-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+  transition: var(--transition);
+}
+
+.expense-header-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.45);
+}
+
+/* KPI Thống Kê Chi Phí */
+.expense-stats-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.expense-stats-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.expense-stats-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.expense-stats-main-amount {
+  font-size: 24px;
+  font-weight: 800;
+  color: #dc2626;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.expense-stats-count-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.expense-stats-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.expense-stat-badge {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.expense-stat-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.stat-badge-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+
+.stat-badge-percent {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.stat-badge-amount {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.stat-badge-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+/* Lọc thời gian & Nhóm chi phí */
+.expense-filter-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  scrollbar-width: none;
+}
+
+.expense-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.expense-period-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.expense-period-chip.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Danh Sách Thẻ Phiếu Chi */
+.expense-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 60px;
+}
+
+.expense-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.expense-card:hover {
+  border-color: #fca5a5;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+}
+
+.expense-card-main {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.expense-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.expense-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.expense-card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.expense-card-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-card-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #dc2626;
+  white-space: nowrap;
+}
+
+.expense-card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.expense-card-payment {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.expense-card-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 4px;
+  word-break: break-word;
+}
+
+.expense-card-seller {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.seller-phone-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seller-phone-link:hover {
+  text-decoration: underline;
+}
+
+.expense-card-thumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+  cursor: zoom-in;
+}
+
+.expense-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 9px;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+.expense-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.expense-card-code {
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.expense-card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-expense-action {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-expense-action.btn-edit {
+  color: var(--primary);
+}
+
+.btn-expense-action.btn-edit:hover {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: var(--primary);
+}
+
+.btn-expense-action.btn-del {
+  color: #dc2626;
+}
+
+.btn-expense-action.btn-del:hover {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: #dc2626;
+}
+
+/* ==================================================================== */
+/* MISA STYLE EXPENSE FORM (GIAO DIỆN NHẬP CHI TIỀN)                   */
+/* ==================================================================== */
+
+.misa-amount-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(220, 38, 38, 0.02));
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.misa-amount-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.misa-single-amount-wrapper {
+  margin: 4px 0 8px 0;
+}
+
+.misa-big-amount-input {
+  width: 100%;
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  color: #dc2626;
+  border: none;
+  background: transparent;
+  outline: none;
+  line-height: 1.1;
+  padding: 2px 0;
+}
+
+.misa-big-amount-input::placeholder {
+  color: rgba(220, 38, 38, 0.4);
+}
+
+.misa-quick-amounts-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  padding: 4px 0 2px 0;
+  justify-content: center;
+}
+
+.misa-quick-amounts-row::-webkit-scrollbar {
+  display: none;
+}
+
+.btn-quick-amount {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-quick-amount:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.btn-quick-amount.btn-clear-amount {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+/* Category Picker Trigger Box (Gọn gàng như MISA) */
+.category-picker-trigger-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.category-picker-trigger-box:hover {
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+.picker-cat-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.picker-cat-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.picker-cat-arrow {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Category Modal List (Theo Ảnh 4) */
+.cat-group-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-main);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.cat-group-header-row:first-child {
+  margin-top: 0;
+}
+
+.cat-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cat-item-row:last-child {
+  border-bottom: none;
+}
+
+.cat-item-row:hover {
+  background: var(--bg-main);
+}
+
+.cat-item-row.active {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+.cat-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cat-item-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.cat-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.cat-item-check {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary);
+  display: none;
+}
+
+.cat-item-row.active .cat-item-check {
+  display: inline-block;
+}
+
+.expense-thumb-mini {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid var(--border-color);
+  flex-shrink: 0;
+  cursor: zoom-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.expense-thumb-mini img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: cover;
+  display: block;
+}
+
+.expense-compact-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expense-compact-code {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.expense-compact-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #dc2626;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.expense-compact-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 3px;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+/* Collapsible Seller Accordion */
+.seller-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: var(--transition);
+}
+
+.seller-accordion-header:hover {
+  background: var(--border-color);
+}
+
+.seller-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seller-header-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+
+.seller-accordion-header.active .seller-header-arrow {
+  transform: rotate(180deg);
+}
+
+.seller-accordion-content {
+  display: none;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.seller-accordion-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Floating Action Button (+) Nằm trên Bottom Nav, không bị che */
+.expense-fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 64px) + 20px + env(safe-area-inset-bottom, 0px));
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  border: none;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+  cursor: pointer;
+  z-index: 999 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.expense-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
+}
+
+.expense-fab:active {
+  transform: scale(0.92);
+}
+
+/* Modal Chi Tiết Phiếu Chi */
+.expense-detail-card {
+  padding: 2px 0;
+}
+
+.detail-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.detail-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-code {
+  font-size: 12px;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.detail-amount-display {
+  font-size: 26px;
+  font-weight: 900;
+  color: #dc2626;
+  text-align: center;
+  margin: 4px 0 2px 0;
+}
+
+.detail-category-title {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.detail-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-info-item .info-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.detail-info-item .info-val {
+  font-size: 12.5px;
+  color: var(--text-main);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.detail-seller-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.seller-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.seller-call-btn {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-image-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.detail-image-wrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  max-height: 150px;
+  height: 140px;
+  background: rgba(0, 0, 0, 0.04);
+  cursor: zoom-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+.image-zoom-hint {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.detail-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .misa-amount-card {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="dark"] .misa-amount-display,
+[data-theme="dark"] .misa-amount-input,
+[data-theme="dark"] .expense-stats-main-amount,
+[data-theme="dark"] .expense-card-amount,
+[data-theme="dark"] .detail-amount-display,
+[data-theme="dark"] .stat-badge-amount {
+  color: #f87171;
+}
+
+[data-theme="dark"] .btn-payment-mode.active {
+  border-color: #f87171;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+}
+
+/* ====================================================================
+   STYLES: QUẢN LÝ NGƯỜI DÙNG & PHÂN QUYỀN (USER MANAGEMENT & RBAC)
+   ==================================================================== */
+
+/* Nút FAB (+) Cố định góc dưới màn hình */
+.user-fab {
+  position: fixed;
+  bottom: 76px;
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: white;
+  border: none;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.5);
+  cursor: pointer;
+  z-index: 99;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.user-fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 22px rgba(2, 132, 199, 0.65);
+}
+
+.user-fab:active {
+  transform: scale(0.92);
+}
+
+/* Grid Checkbox Menu */
+.user-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 6px;
+}
+
+.user-menu-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.user-menu-card:hover {
+  border-color: var(--primary);
+  background: rgba(2, 132, 199, 0.05);
+}
+
+.user-menu-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Khung chọn phạm vi khách hàng */
+.scope-selector-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.scope-customer-item:hover {
+  background: rgba(2, 132, 199, 0.05) !important;
+}
+
+@media (max-width: 600px) {
+  .user-menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Lightbox Xem Ảnh Phóng To: Luôn nổi trên tất cả các popup modal */
+#image-lightbox-modal {
+  z-index: 99999 !important;
+}
+
+/* ==================================================================== */
+/* BẢNG CHI TIẾT GIAO ĐÁ / CÔNG NỢ THÁNG (CHUẨN IN & XUẤT FILE)         */
+/* ==================================================================== */
+.month-detail-paper {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 12px 16px;
+  margin: 0 auto;
+  width: 650px;
+  max-width: 650px;
+  font-family: 'Times New Roman', Times, serif;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  transform-origin: top center;
+  transition: transform 0.18s ease;
+}
+
+.month-detail-paper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Times New Roman', Times, serif;
+  border: 1.5px solid #000000;
+  color: #000000;
+  page-break-inside: auto;
+}
+
+.month-detail-paper th,
+.month-detail-paper td {
+  border: 1px solid #000000;
+  padding: 3.5px 5px;
+  font-size: 12.5px;
+  color: #000000;
+  line-height: 1.25;
+}
+
+.month-detail-paper tr {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.month-detail-paper th {
+  font-weight: bold;
+  text-align: center;
+  background: #ffffff;
+}
+
+.month-detail-paper .sum-row {
+  font-weight: bold;
+}
+
+.month-detail-paper .highlight-yellow {
+  background-color: #FFFF00 !important;
+  color: #000000 !important;
+  font-weight: bold !important;
+}
+
+.month-detail-paper .signature-block {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  page-break-before: auto;
+}
+
+/* Khi in trực tiếp biểu mẫu chi tiết giao đá */
+@media print {
+  body.printing-month-detail * {
+    visibility: hidden;
+  }
+  body.printing-month-detail #debt-month-detail-modal,
+  body.printing-month-detail #month-detail-sheet-wrapper,
+  body.printing-month-detail #month-detail-sheet-print,
+  body.printing-month-detail #month-detail-sheet-print * {
+    visibility: visible;
+  }
+  body.printing-month-detail #debt-month-detail-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+  body.printing-month-detail .modal-sheet {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-month-detail .modal-header,
+  body.printing-month-detail .recon-no-print {
+    display: none !important;
+  }
+  body.printing-month-detail #month-detail-sheet-wrapper {
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+  body.printing-month-detail .month-detail-paper {
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border: none !important;
+    padding: 8mm 6mm !important;
+  }
+}
+
+/* Modal Chi Tiết Giao Hàng Tháng chiếm gần hết / trọn màn hình */
+#debt-month-detail-modal .modal-sheet {
+  height: 96vh;
+  height: 96dvh;
+  max-height: 98vh;
+  max-height: 98dvh;
+  max-width: 920px;
+  width: 100%;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  #debt-month-detail-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+  #debt-month-detail-modal .modal-sheet {
+    height: 96vh;
+    height: 96dvh;
+    max-height: 98vh;
+    max-height: 98dvh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    margin: 0;
+  }
+}
+
+.swipe-btn-statement {
+  background: #0d9488;
+}
+
+
+

@@ -1,0 +1,2820 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Đá, nước tinh khiết - Bán Hàng PWA</title>
+
+  <!-- PWA Metadata, Icons & Theme -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="assets/icons/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0284c7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Đá, nước tinh khiết" />
+  <meta name="description"
+    content="Ứng dụng quản lý bán hàng đá viên và nước đóng bình tinh khiết kết nối Google Sheet" />
+
+  <!-- Google Fonts: Inter chuẩn hóa 100% tiếng Việt cho giao diện người dùng -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet.js Interactive Map Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Chart.js Engine for Fast Interactive Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Supabase JS Client v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Google Identity Services (Google OAuth 2.0 Sign-In) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- SheetJS with styling & html2pdf for Monthly Statement Form Export -->
+  <script src="js/libs/xlsx.bundle.js"></script>
+  <script src="js/libs/html2pdf.bundle.min.js"></script>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+
+<body>
+
+  <!-- App Shell -->
+  <div id="app-shell">
+
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand-badge" style="cursor: pointer;" onclick="App.switchView('orders')" title="Về trang Bán Hàng">
+          <img src="assets/logo_banner.png" alt="Đá & Nước Thái Hà" class="brand-logo-img" />
+        </div>
+
+        <!-- Desktop Navigation Links (Hiển thị trên màn hình rộng) -->
+        <nav class="desktop-nav">
+          <button class="desktop-nav-link active" data-view="orders">🛒 Bán Hàng</button>
+          <button class="desktop-nav-link" data-view="customers">👥 Khách Hàng</button>
+          <button class="desktop-nav-link" data-view="debts">📊 Công Nợ</button>
+          <button class="desktop-nav-link" data-view="revenue">📈 Doanh Thu</button>
+          <button class="desktop-nav-link" data-view="map">🗺️ Bản Đồ</button>
+          <button class="desktop-nav-link" data-view="history">📜 Lịch Sử</button>
+        </nav>
+
+        <div class="header-actions" style="display: flex; align-items: center; gap: 6px; position: relative;">
+          <button class="btn-icon" id="btn-header-sync" onclick="App.manualSyncData()"
+            title="Làm mới / Cập nhật dữ liệu">
+            <svg id="header-sync-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+            </svg>
+          </button>
+          <div id="user-profile-badge"></div>
+          <button class="btn-icon" id="btn-hamburger-menu" onclick="App.toggleHamburgerMenu()" title="Menu chức năng"
+            style="font-size: 20px; font-weight: 700;">
+            ☰
+          </button>
+
+          <!-- Dropdown Hamburger Menu Floating Box -->
+          <div id="hamburger-dropdown-menu" class="hamburger-dropdown-menu">
+            <div class="hamburger-menu-list">
+              <button type="button" id="hamburger-menu-assets" class="hamburger-menu-item"
+                onclick="App.switchView('assets'); App.closeHamburgerMenu();">
+                📦 <span>Mượn Trả Vật Tư</span>
+              </button>
+              <button type="button" id="hamburger-menu-users" class="hamburger-menu-item"
+                onclick="App.switchView('users'); App.closeHamburgerMenu();">
+                👥 <span>Người Dùng</span>
+              </button>
+              <button type="button" id="hamburger-menu-expenses" class="hamburger-menu-item"
+                onclick="App.switchView('expenses'); App.closeHamburgerMenu();">
+                💸 <span>Chi Phí</span>
+              </button>
+              <button type="button" id="hamburger-menu-bank" class="hamburger-menu-item"
+                onclick="NganHangUI.openBankAccountsModal()">
+                💳 <span>Tk Ngân Hàng</span>
+              </button>
+              <button type="button" id="hamburger-menu-settings" class="hamburger-menu-item"
+                onclick="App.switchView('settings'); App.closeHamburgerMenu();">
+                ⚙️ <span>Cài Đặt Hệ Thống</span>
+              </button>
+              <button type="button" class="hamburger-menu-item" onclick="App.toggleTheme(); App.closeHamburgerMenu();">
+                🌓 <span>Đổi Giao Diện Sáng / Tối</span>
+              </button>
+              <button type="button" class="hamburger-menu-item item-danger"
+                onclick="AuthManager.logout(); App.closeHamburgerMenu();">
+                🚪 <span>Đăng Xuất Tài Khoản</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="container">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: BÁN HÀNG 1-CHẠM (ORDERS)            -->
+        <!-- ========================================== -->
+        <section id="view-orders" class="view-section active">
+
+          <!-- Camera & Gallery Upload Dual Buttons -->
+          <div class="card"
+            style="background: var(--bg-main); border: 1.5px dashed var(--primary); padding: 8px; margin-bottom: 5px; box-sizing: border-box; width: 100%;">
+            <input type="file" id="order-camera-file" accept="image/*" capture="environment" style="display: none;" />
+            <input type="file" id="order-gallery-file" accept="image/*" style="display: none;" />
+
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-primary flex-1" id="btn-order-camera-trigger"
+                style="font-size: 12.5px; font-weight: 700; padding: 8px 6px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                📷 Chụp Ảnh Trực Tiếp
+              </button>
+              <button type="button" class="btn btn-secondary flex-1" id="btn-order-gallery-trigger"
+                style="font-size: 12.5px; font-weight: 700; padding: 8px 6px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                📁 Tải Ảnh Từ Máy
+              </button>
+            </div>
+          </div>
+
+          <!-- Nút định vị GPS trực tiếp trên thiết bị để gợi ý khách gần nhất -->
+          <button type="button" class="btn btn-secondary btn-block" id="btn-order-device-gps"
+            style="margin-bottom: 5px; font-size: 12px; font-weight: 600; padding: 7px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box; width: 100%;"
+            onclick="DonHangUI.handleGetDeviceGps()">
+            📍 Lấy Vị Trí GPS Thiết Bị Để Gợi Ý Khách Gần Nhất
+          </button>
+
+          <!-- Image Preview -->
+          <div id="order-photo-preview-box" class="image-preview-box" style="display: none;">
+            <img src="" alt="Ảnh giao hàng" />
+            <button class="btn-icon"
+              style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; border: none; width: 28px; height: 28px;"
+              onclick="DonHangUI.hidePhotoGpsInfo()">✕</button>
+          </div>
+
+          <!-- Photo GPS & Time Single-line Mini Badge -->
+          <div id="photo-gps-mini-badge" class="photo-gps-mini-badge" style="display: none;">
+            <div class="flex items-center gap-2">
+              <span>📍 <span id="photo-gps-coord-text">0.0, 0.0</span></span>
+              <span>•</span>
+              <span>⏰ <span id="photo-gps-time-text">--:--</span></span>
+            </div>
+            <span id="photo-gps-nearest-text" style="font-weight: 700; color: var(--primary);"></span>
+          </div>
+
+          <!-- Customer Selection (Searchable single line with dropdown) -->
+          <div class="form-group" style="margin-bottom: 5px;">
+            <div class="customer-select-wrapper" id="order-customer-select-wrapper">
+              <div class="customer-search-input-box" id="customer-search-input-box">
+                <input type="text" id="order-customer-search-input" class="customer-search-input"
+                  placeholder="🔍 Chọn hoặc tìm kiếm khách hàng..." autocomplete="off" />
+                <button type="button" class="btn-clear-customer-search" id="btn-clear-customer-search"
+                  style="display: none;">✕</button>
+                <button type="button" class="btn-toggle-customer-dropdown" id="btn-toggle-customer-dropdown">▼</button>
+              </div>
+
+              <!-- Floating Dropdown List of Customers -->
+              <div class="customer-dropdown-menu" id="order-customer-dropdown-menu">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Details (Inline Row + Counter +/-) -->
+          <div class="card" style="margin-bottom: 5px; padding: 8px 10px; box-sizing: border-box; width: 100%;">
+            <div class="flex items-center justify-between" style="margin-bottom: 8px;">
+              <span style="font-weight: 700; font-size: 14px; color: var(--text-main);">2. Đơn hàng</span>
+              <div class="flex items-center gap-2">
+                <label class="product-checkbox-label">
+                  <input type="checkbox" id="chk-enable-da" checked />
+                  <span>🧊 Đá</span>
+                </label>
+                <label class="product-checkbox-label">
+                  <input type="checkbox" id="chk-enable-nuoc" />
+                  <span>💧 Nước</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- PRODUCT 1: ĐÁ VIÊN -->
+            <div class="product-compact-row" id="product-row-da">
+              <div class="product-line-main">
+                <div class="product-name-col">
+                  <span class="product-name-title">🧊 Đá</span>
+                </div>
+
+                <div class="counter-mini-box">
+                  <button type="button" class="btn-mini-counter" id="btn-minus-da-sl">−</button>
+                  <input type="number" class="input-mini-counter" id="counter-da-sl" value="1" min="0" />
+                  <button type="button" class="btn-mini-counter" id="btn-plus-da-sl">+</button>
+                </div>
+
+                <div class="counter-mini-box price-counter">
+                  <button type="button" class="btn-mini-counter" id="btn-minus-da-price">−</button>
+                  <input type="number" class="input-mini-counter" id="counter-da-price" value="7000" step="500" />
+                  <button type="button" class="btn-mini-counter" id="btn-plus-da-price">+</button>
+                </div>
+              </div>
+
+              <!-- Sub-row: Quick 1, +5, +10 centered under SL input, and Preset prices centered under Price input -->
+              <div class="product-line-sub">
+                <div class="sub-empty-col"></div>
+
+                <!-- Aligned directly under SL Counter -->
+                <div class="quick-sl-group">
+                  <button type="button" class="btn-quick-chip" id="btn-quick-da-1">1</button>
+                  <button type="button" class="btn-quick-chip" id="btn-quick-da-5">+5</button>
+                  <button type="button" class="btn-quick-chip" id="btn-quick-da-10">+10</button>
+                </div>
+
+                <!-- Aligned directly under Price Counter -->
+                <div class="price-chips-group">
+                  <button type="button" class="btn-price-chip" data-preset-price-da="6000">6.000đ</button>
+                  <button type="button" class="btn-price-chip active" data-preset-price-da="7000">7.000đ</button>
+                  <button type="button" class="btn-price-chip" data-preset-price-da="10000">10.000đ</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PRODUCT 2: NƯỚC BÌNH 20L -->
+            <div class="product-compact-row" id="product-row-nuoc"
+              style="display: none; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+              <div class="product-line-main">
+                <div class="product-name-col">
+                  <span class="product-name-title">💧 Nước</span>
+                </div>
+
+                <div class="counter-mini-box">
+                  <button type="button" class="btn-mini-counter" id="btn-minus-nuoc-sl">−</button>
+                  <input type="number" class="input-mini-counter" id="counter-nuoc-sl" value="1" min="0" />
+                  <button type="button" class="btn-mini-counter" id="btn-plus-nuoc-sl">+</button>
+                </div>
+
+                <div class="counter-mini-box price-counter">
+                  <button type="button" class="btn-mini-counter" id="btn-minus-nuoc-price">−</button>
+                  <input type="number" class="input-mini-counter" id="counter-nuoc-price" value="9000" step="500" />
+                  <button type="button" class="btn-mini-counter" id="btn-plus-nuoc-price">+</button>
+                </div>
+              </div>
+
+              <!-- Sub-row: Quick 1, +5, +10 centered under SL input, and Preset prices centered under Price input -->
+              <div class="product-line-sub">
+                <div class="sub-empty-col"></div>
+
+                <!-- Aligned directly under SL Counter -->
+                <div class="quick-sl-group">
+                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-1">1</button>
+                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-5">+5</button>
+                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-10">+10</button>
+                </div>
+
+                <!-- Aligned directly under Price Counter -->
+                <div class="price-chips-group">
+                  <button type="button" class="btn-price-chip active" data-preset-price-nuoc="9000">9.000đ</button>
+                  <button type="button" class="btn-price-chip" data-preset-price-nuoc="12000">12.000đ</button>
+                  <button type="button" class="btn-price-chip" data-preset-price-nuoc="15000">15.000đ</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Payment Options -->
+          <div class="form-group" style="margin-bottom: 5px;">
+            <div class="payment-tabs">
+              <button type="button" class="payment-tab-btn active" data-payment="Tien_Mat">
+                💵 T.mặt
+              </button>
+              <button type="button" class="payment-tab-btn" data-payment="No">
+                ⏳ Nợ
+              </button>
+              <button type="button" class="payment-tab-btn" data-payment="CK">
+                📱 Ch.Khoản
+              </button>
+            </div>
+
+            <!-- VietQR Box Cho Tạo Đơn Hàng (Hiển thị inline khi chọn Chuyển Khoản) -->
+            <div id="create-order-vietqr-box"
+              style="display: none; margin-top: 6px; padding: 10px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1.5px solid var(--primary-light);">
+              <div style="margin-bottom: 6px;">
+                <label class="form-label"
+                  style="font-size: 11.5px; font-weight: 700; margin-bottom: 4px; color: var(--text-secondary);">💳 Chọn
+                  tài khoản nhận tiền:</label>
+                <select id="create-order-bank-select" class="form-control"
+                  style="font-size: 12px; font-weight: 700; padding: 6px 8px; border-color: var(--primary); width: 100%; text-overflow: ellipsis;"
+                  onchange="DonHangUI.handleCreateOrderBankChange(this.value)">
+                </select>
+              </div>
+
+              <div class="vietqr-card"
+                style="margin-top: 4px; padding: 6px; min-height: 220px; display: flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 8px; border: 1px solid var(--border-color);">
+                <img id="create-order-vietqr-img" src="" alt="Mã VietQR"
+                  style="max-width: 230px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+              </div>
+
+              <div class="flex gap-2" style="margin-top: 6px;">
+                <button type="button" class="btn btn-primary flex-1"
+                  style="font-size: 12px; font-weight: 700; padding: 7px 4px;"
+                  onclick="DonHangUI.handleShareCreateOrderVietQR()">
+                  📤 Chia Sẻ QR
+                </button>
+                <button type="button" class="btn btn-secondary flex-1"
+                  style="font-size: 12px; font-weight: 700; padding: 7px 4px;"
+                  onclick="DonHangUI.handleDownloadCreateOrderVietQR()">
+                  📥 Tải Ảnh QR
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ngày Giao Hàng & Ghi Chú Đơn Hàng -->
+          <div class="card" style="margin-bottom: 5px; padding: 8px 10px; box-sizing: border-box; width: 100%;">
+            <div style="margin-bottom: 6px;">
+              <label class="form-label"
+                style="font-size: 12px; margin-bottom: 3px; font-weight: 600; color: var(--text-main);">📅 Ngày giao
+                hàng:</label>
+              <input type="date" id="order-delivery-datetime" class="form-control"
+                style="font-size: 12.5px; padding: 6px 8px; width: 100%; max-width: 100%; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label class="form-label"
+                style="font-size: 12px; margin-bottom: 3px; font-weight: 600; color: var(--text-main);">📝 Ghi chú đơn
+                hàng:</label>
+              <input type="text" id="order-notes" class="form-control"
+                placeholder="Ghi chú (Ví dụ: Giao buổi chiều, trả 2 vỏ bình...)"
+                style="font-size: 12.5px; padding: 6px 8px; width: 100%; max-width: 100%; box-sizing: border-box;" />
+            </div>
+          </div>
+
+          <!-- Total Summary Box -->
+          <div class="order-summary-box">
+            <div class="summary-row" id="summary-da-row">
+              <span>Đá:</span>
+              <span id="summary-da-text">1 × 7.000đ = 7.000đ</span>
+            </div>
+            <div class="summary-row" id="summary-nuoc-row" style="display: none;">
+              <span>Nước:</span>
+              <span id="summary-nuoc-text">1 × 9.000đ = 9.000đ</span>
+            </div>
+
+            <div class="summary-row summary-total">
+              <span>Tổng cộng:</span>
+              <span id="order-grand-total">7.000 đ</span>
+            </div>
+
+            <div class="summary-row"
+              style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(255, 255, 255, 0.15);">
+              <span style="font-size: 12px; opacity: 0.85;">Sửa số tiền tổng:</span>
+              <div class="counter-mini-box"
+                style="width: 130px; height: 30px; background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.2);">
+                <button type="button" class="btn-mini-counter" id="btn-minus-total"
+                  style="width: 28px; height: 30px; color: white; background: transparent; font-weight: 800;">−</button>
+                <input type="number" class="input-mini-counter" id="order-total-editable"
+                  style="color: white; font-weight: 700; font-size: 12.5px;" step="500" />
+                <button type="button" class="btn-mini-counter" id="btn-plus-total"
+                  style="width: 28px; height: 30px; color: white; background: transparent; font-weight: 800;">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons (Cố định phía dưới màn hình) -->
+          <div class="fixed-order-action-bar">
+            <button class="btn btn-outline-danger" id="btn-reset-order" style="padding: 9px 12px; font-size: 13px;">
+              🔄 Làm lại
+            </button>
+            <button class="btn btn-primary flex-1" id="btn-submit-order"
+              style="font-size: 14.5px; font-weight: 700; padding: 9px 12px;">
+              🚀 Hoàn Tất & Lưu Đơn
+            </button>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: QUẢN LÝ KHÁCH HÀNG (CUSTOMERS)       -->
+        <!-- ========================================== -->
+        <section id="view-customers" class="view-section">
+          <!-- Thanh tìm kiếm khách hàng cố định phía trên -->
+          <div class="sticky-search-bar">
+            <div class="flex gap-2 items-center">
+              <div class="search-input-wrapper" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                <input type="text" id="customer-search-input" class="form-control"
+                  placeholder="🔍 Tìm tên, mã KH, SĐT, địa chỉ..." style="font-size: 13px; padding: 7px 10px;" />
+                <button type="button" class="btn-input-clear" id="btn-clear-cust-list-search"
+                  title="Xóa tìm kiếm">✕</button>
+              </div>
+              <span id="customer-count-badge" class="badge badge-primary"
+                style="font-size: 12px; font-weight: 800; padding: 6px 9px; white-space: nowrap; border-radius: 8px;">0
+                khách</span>
+            </div>
+          </div>
+
+          <div id="customer-list-container">
+            <!-- List khách hàng -->
+          </div>
+
+          <!-- Nút Thêm Khách Hàng tròn dấu + cố định trên màn hình -->
+          <button class="fab-btn" id="btn-open-add-customer" title="Thêm Khách Hàng">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: BẢN ĐỒ KHÁCH HÀNG (INTERACTIVE MAP) -->
+        <!-- ========================================== -->
+        <section id="view-map" class="view-section">
+          <div class="map-view-layout">
+
+            <!-- Left Sidebar: Customer List with Distance & Search -->
+            <div class="map-sidebar-panel">
+              <div class="map-sidebar-header" style="padding: 10px;">
+                <div class="search-input-wrapper" style="margin-bottom: 0;">
+                  <input type="text" id="map-search-input" class="form-control"
+                    placeholder="🔍 Tìm tên, mã KH, SĐT, địa chỉ..." style="margin-bottom: 0;" />
+                  <button type="button" class="btn-input-clear" id="btn-clear-map-search"
+                    title="Xóa tìm kiếm">✕</button>
+                </div>
+              </div>
+
+              <!-- Scrollable List of Customer Location Cards -->
+              <div class="map-sidebar-list" id="map-customer-list">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Right Canvas: Leaflet Map Container -->
+            <div class="map-canvas-container">
+
+              <!-- Floating Map Layer Switcher (Street / Satellite) -->
+              <div class="map-floating-controls">
+                <button type="button" class="btn-map-layer active" id="btn-map-layer-street"
+                  onclick="BanDoUI.toggleMapLayer('street')">
+                  🗺️ Đường Phố
+                </button>
+                <button type="button" class="btn-map-layer" id="btn-map-layer-satellite"
+                  onclick="BanDoUI.toggleMapLayer('satellite')">
+                  🛰️ Vệ Tinh
+                </button>
+              </div>
+
+              <!-- Button to Center on User Location -->
+              <button type="button" class="btn-map-locate" id="btn-map-my-location"
+                onclick="BanDoUI.centerOnMyLocation()" title="Định vị vị trí hiện tại của tôi">
+                📍 Vị Trí Của Tôi
+              </button>
+
+              <!-- Map DOM Element -->
+              <div id="customer-map"></div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: LỊCH SỬ ĐƠN HÀNG (HISTORY)         -->
+        <!-- ========================================== -->
+        <section id="view-history" class="view-section">
+          <!-- Thanh tìm kiếm lịch sử đơn hàng cố định phía trên -->
+          <div class="sticky-search-bar">
+            <div class="flex gap-2 items-center">
+              <div class="search-input-wrapper" style="flex: 1; min-width: 0; margin-bottom: 0;">
+                <input type="text" id="history-search-input" class="form-control"
+                  placeholder="🔍 Tìm mã đơn, tên khách, SĐT..." style="font-size: 13px; padding: 7px 10px;" />
+                <button type="button" class="btn-input-clear" id="btn-clear-history-search"
+                  title="Xóa tìm kiếm">✕</button>
+              </div>
+              <span id="history-count-badge" class="badge badge-primary"
+                style="font-size: 12px; font-weight: 800; padding: 6px 9px; white-space: nowrap; border-radius: 8px;">0
+                đơn</span>
+            </div>
+          </div>
+
+          <div id="history-orders-list">
+            <!-- Đơn hàng chi tiết -->
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: CÀI ĐẶT & KẾT NỐI (SETTINGS)        -->
+        <!-- ========================================== -->
+        <section id="view-settings" class="view-section">
+          <!-- Card 1: Phiên Bản Ứng Dụng & Bản Quyền -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📱 Phiên Bản & Bản Quyền Phần Mềm</div>
+            </div>
+            <div style="font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div>
+                <b>Phiên bản:</b> <span id="app-version-display">v2.1.0</span>
+              </div>
+              <a href="https://github.com/ngonluarecca/da-nuoc-thai-ha-2/releases" target="_blank" rel="noopener"
+                style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">
+                🏷️ Xem Releases ↗
+              </a>
+            </div>
+
+            <!-- Ngày bắt đầu cài đặt -->
+            <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <span>🗓️ <b>Ngày bắt đầu (cài đặt):</b></span>
+              <span id="license-install-date-display" style="font-weight: 700; color: #10b981;">Đang tải...</span>
+            </div>
+
+            <!-- Mã nhận diện hệ thống (System ID) -->
+            <div style="font-size: 12.5px; padding: 10px 12px; background: var(--bg-main); border: 1.5px dashed var(--border-color); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <div style="overflow: hidden;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Mã Hệ Thống (System ID):</div>
+                <code id="license-system-id-display" style="font-family: monospace; font-size: 13.5px; font-weight: 800; color: var(--primary); word-break: break-all;">Đang tải...</code>
+              </div>
+              <button type="button" class="btn btn-secondary" onclick="LicenseService.copySystemId()" style="padding: 5px 10px; font-size: 12px; font-weight: 600; white-space: nowrap;">
+                📋 Sao Chép
+              </button>
+            </div>
+
+            <!-- Trạng thái bản quyền -->
+            <div style="font-size: 13px; margin-bottom: 8px;" id="license-status-badge">
+              Đang kiểm tra bản quyền...
+            </div>
+
+            <button type="button" class="btn btn-warning btn-block" onclick="LicenseService.openActivationModal()" style="font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 12px;">
+              🔑 Kích Hoạt / Gia Hạn Bản Quyền
+            </button>
+
+            <!-- Thông tin liên hệ nhà phát hành -->
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color); font-size: 12px; color: var(--text-muted); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+              <span>📞 Hotline/Zalo: <a href="tel:0387977348" style="color: var(--primary); font-weight: 700; text-decoration: none;">0387.977.348</a></span>
+              <span>✉️ Email: <a href="mailto:ds72093@gmail.com" style="color: var(--primary); font-weight: 600; text-decoration: none;">ds72093@gmail.com</a></span>
+            </div>
+          </div>
+
+          <!-- Card 2: Thông Tin Cơ Sở & Thương Hiệu -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🏢 Thông Tin Cơ Sở & Thương Hiệu</div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+              Cấu hình Tên cơ sở, MST/CCCD (tự động in trên Bảng chi tiết giao hàng tháng), SĐT, Địa chỉ và tùy biến Logo / Icon ứng dụng.
+            </div>
+            <button type="button" class="btn btn-primary btn-block" onclick="SettingsManager.openFacilityModal()" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+              🏢 Khai Báo Thông Tin Cơ Sở & Logo
+            </button>
+          </div>
+
+          <!-- Card 3: Cấu Hình Telegram Đa Nhóm -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">✈️ Cấu Hình Thông Báo Telegram Đa Nhóm</div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+              Phân luồng thông báo tự động theo từng nhóm Telegram: Khách Hàng, Đơn Hàng, Thu - Chi (Tiền), và Cảnh Báo bảo mật.
+            </div>
+            <button type="button" class="btn btn-secondary btn-block" onclick="SettingsManager.openTelegramModal()" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+              ✈️ Khai Báo Nhóm Telegram
+            </button>
+          </div>
+
+          <!-- Card 4: Thông Tin Người Dùng & Phân Quyền -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👤 Thông Tin Người Dùng & Phân Quyền</div>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 12px;" id="setting-user-role">
+              Đang kiểm tra...
+            </div>
+            <button class="btn btn-danger" onclick="AuthManager.logout()">
+              🚪 Đăng Xuất Tài Khoản
+            </button>
+          </div>
+
+          <!-- Card 3: Bộ Nhớ Đệm (Offline Cache) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⚡ Bộ Nhớ Đệm (Offline Cache)</div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+              <div>🕒 <b>Trạng thái cache:</b> <span id="cache-status-text">Đang tải</span></div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                * Dữ liệu được tự động đồng bộ Realtime tức thì với Supabase PostgreSQL.
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary flex-1" id="btn-force-sync-cache">
+                🔄 Cập Nhật Dữ Liệu Ngay
+              </button>
+              <button class="btn btn-danger" id="btn-clear-cache" style="padding: 10px 14px;">
+                🗑️ Xóa Cache
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: QUẢN LÝ & XỬ LÝ CÔNG NỢ (DEBTS)      -->
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+        <section id="view-debts" class="view-section">
+          <!-- KPI Summary Cards Header (Compact 4-col 2-row) -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px;">
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--danger); white-space: nowrap;">💰 Tổng tiền
+              </div>
+              <div id="debt-stat-total-money"
+                style="font-size: 12.5px; font-weight: 900; color: var(--danger); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                0 đ</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;">👥
+                Khách nợ</div>
+              <div id="debt-stat-customer-count"
+                style="font-size: 12.5px; font-weight: 900; color: var(--text-main); margin-top: 1px; white-space: nowrap;">
+                0 khách</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap;">🧊 Đá nợ</div>
+              <div id="debt-stat-ice-count"
+                style="font-size: 12.5px; font-weight: 900; color: var(--primary); margin-top: 1px; white-space: nowrap;">
+                0 bao</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--secondary); white-space: nowrap;">💧 Nước nợ
+              </div>
+              <div id="debt-stat-water-count"
+                style="font-size: 12.5px; font-weight: 900; color: var(--secondary); margin-top: 1px; white-space: nowrap;">
+                0 bình</div>
+            </div>
+          </div>
+
+          <!-- Search, Funnel Filter Dropdown, and Thu Gộp in Sticky Top Bar -->
+          <div class="sticky-search-bar">
+            <div class="flex gap-2 items-center">
+              <!-- 1. Tìm kiếm -->
+              <div class="search-input-wrapper" style="flex: 1; min-width: 0;">
+                <input type="text" id="debt-search-input" class="form-control" placeholder="🔍 Tìm khách, SĐT..."
+                  style="font-size: 13px; padding: 7px 10px;" />
+                <button type="button" class="btn-input-clear" id="btn-clear-debt-search" title="Xóa tìm kiếm">✕</button>
+              </div>
+
+              <!-- 2. Lọc Phễu -->
+              <div style="position: relative;" id="debt-filter-dropdown-wrapper">
+                <button type="button" class="btn btn-secondary" id="btn-debt-filter-toggle"
+                  style="padding: 7px 10px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;"
+                  title="Lọc danh sách nợ">
+                  <span id="debt-filter-icon" style="display: flex; align-items: center;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                  </span>
+                </button>
+                <!-- Dropdown menu -->
+                <div id="debt-filter-menu" class="card shadow-md"
+                  style="display: none; position: absolute; right: 0; top: calc(100% + 4px); min-width: 155px; z-index: 50; padding: 4px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color);">
+                  <button type="button" class="debt-filter-item active" data-debt-filter="all"
+                    style="width: 100%; text-align: left; padding: 7px 10px; border: none; background: none; font-size: 12.5px; font-weight: 700; cursor: pointer; border-radius: 6px; color: var(--primary);">
+                    ✓ Tất Cả
+                  </button>
+                  <button type="button" class="debt-filter-item" data-debt-filter="7days"
+                    style="width: 100%; text-align: left; padding: 7px 10px; border: none; background: none; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-main);">
+                    ⚠️ Nợ > 7 ngày
+                  </button>
+                  <button type="button" class="debt-filter-item" data-debt-filter="30days"
+                    style="width: 100%; text-align: left; padding: 7px 10px; border: none; background: none; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-main);">
+                    🔥 Nợ > 30 ngày
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Nút Lịch Sử Phiếu Thu -->
+              <button type="button" class="btn btn-secondary" id="btn-debt-receipt-history"
+                style="padding: 7px 10px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; color: #059669; border-color: rgba(5, 150, 105, 0.4); background: rgba(5, 150, 105, 0.08);"
+                onclick="CongNoUI.openReceiptHistoryModal()" title="Xem lại lịch sử phiếu thu, sửa & hủy phiếu thu">
+                🧾 Phiếu Thu
+              </button>
+
+              <!-- 3. Nút ✓ Thoát / Bỏ chọn tất cả (Chỉ hiện khi ở chế độ chọn nhiều) -->
+              <button type="button" class="btn btn-secondary" id="btn-debt-exit-select"
+                style="display: none; padding: 7px 10px; font-size: 12.5px; font-weight: 800; color: var(--primary); white-space: nowrap; align-items: center; gap: 4px;"
+                onclick="CongNoUI.exitSelectionMode()" title="Bỏ chọn tất cả / Thoát">
+                ✓ Bỏ chọn
+              </button>
+
+              <!-- 4. Nút Thu Gộp (Chỉ hiện khi tích chọn > 1 quán) -->
+              <button type="button" class="btn btn-primary" id="btn-debt-multi-settle"
+                style="display: none; padding: 7px 12px; font-size: 13px; font-weight: 800; white-space: nowrap; align-items: center; gap: 4px; background: #059669; border-color: #059669;"
+                onclick="CongNoUI.handleTriggerMultiSettle()">
+                💰 Thu gộp (<span id="debt-selected-count">0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Customer Debt Cards List -->
+          <div id="debt-customer-list-container">
+            <!-- Dynamic customer debt cards -->
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB: BÁO CÁO DOANH THU (REVENUE)           -->
+        <!-- ========================================== -->
+        <section id="view-revenue" class="view-section">
+
+          <!-- 1. BỘ LỌC THỜI GIAN NHANH CỐ ĐỊNH PHÍA TRÊN -->
+          <div class="sticky-search-bar" style="padding: 2px 0 4px 0; margin-bottom: 5px;">
+            <div class="card" style="padding: 6px 8px; margin-bottom: 0;">
+              <div class="rev-unified-filter-bar" style="display: flex; align-items: center; gap: 6px;">
+
+                <!-- Select chọn chế độ (Ngày / Tháng / Năm) -->
+                <select id="rev-mode-select" class="form-control"
+                  style="font-size: 12px; font-weight: 700; padding: 6px 4px; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--bg-card); color: var(--primary); cursor: pointer; width: auto; max-width: 92px; flex-shrink: 0;"
+                  onchange="DoanhThuUI.switchMode(this.value)">
+                  <option value="day" selected>📅 Ngày</option>
+                  <option value="month">🗓️ Tháng</option>
+                  <option value="year">📆 Năm</option>
+                </select>
+
+                <!-- Ô Input giá trị linh hoạt theo chế độ (Ngày / Tháng / Năm) -->
+                <div style="flex: 1; min-width: 0; position: relative;" id="rev-input-container">
+                  <!-- Wrapper Chọn Ngày: Hiển thị dạng "28/8/2026" siêu gọn, bấm vào bật popup chọn ngày -->
+                  <div id="rev-date-picker-wrapper" onclick="DoanhThuUI.openDatePicker()"
+                    style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 5px 4px; box-sizing: border-box; cursor: pointer;">
+                    <span id="rev-date-display-label"
+                      style="font-size: 12.5px; font-weight: 800; color: var(--text-main); pointer-events: none; white-space: nowrap;">28/8/2026</span>
+                    <input type="date" id="rev-filter-date-input"
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;"
+                      onchange="DoanhThuUI.handleDateChange(this.value)"
+                      onclick="event.stopPropagation(); DoanhThuUI.openDatePicker();" />
+                  </div>
+
+                  <!-- Wrapper Chọn Tháng: 2 Select chọn Tháng (1-12) & Năm trực tiếp 100% mượt trên mọi thiết bị -->
+                  <div id="rev-month-picker-wrapper" style="display: none; width: 100%; gap: 4px;">
+                    <select id="rev-filter-month-select" class="form-control"
+                      style="flex: 1.15; font-size: 12px; font-weight: 800; padding: 5px 2px; text-align: center; text-align-last: center; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-card); color: var(--text-main); min-width: 0;"
+                      onchange="DoanhThuUI.handleMonthSelectChange(this.value)">
+                      <option value="1">Tháng 1</option>
+                      <option value="2">Tháng 2</option>
+                      <option value="3">Tháng 3</option>
+                      <option value="4">Tháng 4</option>
+                      <option value="5">Tháng 5</option>
+                      <option value="6">Tháng 6</option>
+                      <option value="7">Tháng 7</option>
+                      <option value="8">Tháng 8</option>
+                      <option value="9">Tháng 9</option>
+                      <option value="10">Tháng 10</option>
+                      <option value="11">Tháng 11</option>
+                      <option value="12">Tháng 12</option>
+                    </select>
+                    <select id="rev-filter-month-year-select" class="form-control"
+                      style="flex: 1; font-size: 12px; font-weight: 800; padding: 5px 2px; text-align: center; text-align-last: center; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-card); color: var(--text-main); min-width: 0;"
+                      onchange="DoanhThuUI.handleMonthYearSelectChange(this.value)">
+                    </select>
+                  </div>
+
+                  <!-- Select Năm (YYYY) -->
+                  <select id="rev-filter-year-select" class="form-control"
+                    style="display: none; font-size: 12.5px; font-weight: 800; padding: 5px 4px; text-align: center; text-align-last: center; -webkit-appearance: menulist; width: 100%; min-width: 0;"
+                    onchange="DoanhThuUI.handleYearChange(this.value)">
+                  </select>
+                </div>
+
+                <!-- Select chọn chỉ số (D.Thu / Đá / Nước) -->
+                <select id="rev-metric-select" class="form-control"
+                  style="font-size: 12px; font-weight: 700; padding: 6px 4px; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--bg-card); color: var(--primary); cursor: pointer; width: auto; max-width: 92px; flex-shrink: 0;"
+                  onchange="DoanhThuUI.setChartMetric(this.value)">
+                  <option value="tongTien" selected>💰 D.Thu</option>
+                  <option value="slDa">🧊 Đá</option>
+                  <option value="slNuoc">💧 Nước</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.1. BỘ LỌC CHỌN RIÊNG KHÁCH HÀNG / CỬA HÀNG (TÌM KIẾM THEO TÊN QUÁN, NGƯỜI LIÊN HỆ, CÓ DẤU X) -->
+          <div class="card" style="padding: 6px 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; position: relative;">
+            <span style="font-size: 12.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0;">🏪 Quán:</span>
+            
+            <div class="customer-select-wrapper" id="rev-customer-select-wrapper" style="margin-bottom: 0; flex: 1; min-width: 0; position: relative;">
+              <div class="customer-search-input-box" id="rev-customer-search-input-box" style="padding: 1px 6px; display: flex; align-items: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md);">
+                <input type="text" id="rev-customer-search-input" class="customer-search-input"
+                  placeholder="🔍 Gõ tìm tên quán, người liên hệ, SĐT..." autocomplete="off"
+                  style="font-size: 12.5px; padding: 6px 4px; border: none; background: transparent; flex: 1; outline: none; font-weight: 600; color: var(--text-main); min-width: 0;" />
+                <button type="button" class="btn-clear-customer-search" id="btn-clear-rev-customer-search"
+                  title="Xóa tìm kiếm / Bỏ lọc" style="display: none; background: none; border: none; font-size: 14px; color: var(--text-muted); cursor: pointer; padding: 4px 6px;">✕</button>
+                <button type="button" class="btn-toggle-customer-dropdown" id="btn-toggle-rev-customer-dropdown" 
+                  title="Mở danh sách quán" style="background: none; border: none; font-size: 11px; color: var(--text-secondary); cursor: pointer; padding: 4px 6px;">▼</button>
+              </div>
+
+              <!-- Floating Dropdown List of Customers -->
+              <div class="customer-dropdown-menu" id="rev-customer-dropdown-menu" 
+                style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 280px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow-y: auto; z-index: 1000; display: none;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <button type="button" id="btn-clear-rev-customer-filter" class="btn btn-secondary" 
+              style="display: none; padding: 4px 8px; font-size: 11.5px; font-weight: 700; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); white-space: nowrap; flex-shrink: 0;"
+              onclick="DoanhThuUI.clearCustomerFilter()" title="Quay lại xem toàn bộ khách hàng">
+              ✕ Bỏ lọc
+            </button>
+          </div>
+
+          <!-- 2. CỤM THẺ KPI TỔNG QUAN (2 HÀNG 4 CỘT) -->
+          <!-- Hàng 1: Quy mô bán hàng -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 5px;">
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--primary); white-space: nowrap;">💰 Tổng tiền
+              </div>
+              <div id="rev-kpi-total-money"
+                style="font-size: 12.5px; font-weight: 900; color: var(--primary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                0 đ</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;">📋
+                Tổng đơn</div>
+              <div id="rev-kpi-total-orders"
+                style="font-size: 12.5px; font-weight: 900; color: var(--text-main); margin-top: 1px; white-space: nowrap;">
+                0 đơn</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #0284c7; white-space: nowrap;">🧊 SL Đá</div>
+              <div id="rev-kpi-total-da"
+                style="font-size: 12.5px; font-weight: 900; color: #0284c7; margin-top: 1px; white-space: nowrap;">0 bao
+              </div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #0d9488; white-space: nowrap;">💧 SL Nước</div>
+              <div id="rev-kpi-total-nuoc"
+                style="font-size: 12.5px; font-weight: 900; color: #0d9488; margin-top: 1px; white-space: nowrap;">0
+                bình</div>
+            </div>
+          </div>
+
+          <!-- Hàng 2: Cơ cấu dòng tiền -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px;">
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #059669; white-space: nowrap;">💵 Tiền mặt</div>
+              <div id="rev-kpi-cash-money"
+                style="font-size: 12px; font-weight: 900; color: #059669; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                0 đ</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #2563eb; white-space: nowrap;">📱 Chuyển khoản
+              </div>
+              <div id="rev-kpi-ck-money"
+                style="font-size: 12px; font-weight: 900; color: #2563eb; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                0 đ</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--danger); white-space: nowrap;">⏳ Ghi nợ
+              </div>
+              <div id="rev-kpi-debt-money"
+                style="font-size: 12px; font-weight: 900; color: var(--danger); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                0 đ</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;">📊 Đã
+                thu</div>
+              <div id="rev-kpi-paid-ratio"
+                style="font-size: 12px; font-weight: 900; color: #059669; margin-top: 1px; white-space: nowrap;">100%
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. BIỂU ĐỒ CỘT TƯƠNG TÁC (CHART.JS) -->
+          <div class="card" style="padding: 10px; margin-bottom: 8px;">
+            <div class="flex items-center justify-between" style="gap: 8px; margin-bottom: 6px; padding: 0 4px;">
+              <div id="rev-chart-heading-title" style="font-weight: 800; font-size: 12px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Biểu đồ Doanh thu
+              </div>
+              <div id="rev-chart-avg-badge" style="font-size: 11px; font-weight: 700; color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.25); white-space: nowrap; display: none;">
+                TB: 0
+              </div>
+            </div>
+            <!-- Canvas Chart Container -->
+            <div style="position: relative; width: 100%; height: 230px;">
+              <canvas id="revenue-main-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- 4. BẢNG XẾP HẠNG GIỮA CÁC QUÁN -->
+          <div class="card" style="padding: 12px; margin-bottom: 12px;">
+            <div class="flex items-center justify-between" style="gap: 8px; margin-bottom: 10px;">
+              <div class="flex items-center gap-2" style="min-width: 0;">
+                <span style="font-weight: 800; font-size: 13.5px; color: var(--text-main); white-space: nowrap;">🏆 Xếp
+                  Hạng</span>
+                <span id="rev-customer-count-badge" class="badge badge-primary"
+                  style="font-size: 11px; padding: 2px 6px;">0 quán</span>
+              </div>
+
+              <!-- Nút sắp xếp đưa lên góc trên bên phải ngang hàng với tiêu đề -->
+              <button type="button" class="btn btn-secondary" id="btn-rev-sort-toggle"
+                style="padding: 5px 8px; font-size: 11.5px; font-weight: 700; white-space: nowrap; border-radius: 6px; flex-shrink: 0;"
+                onclick="DoanhThuUI.toggleSortOrder()" title="Đổi thứ tự sắp xếp">
+                📊 Cao nhất ➔ Thấp nhất ▼
+              </button>
+            </div>
+
+            <!-- Danh sách quán được xếp hạng -->
+            <div id="rev-customer-ranking-list">
+              <!-- Dynamic ranking cards -->
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB: QUẢN LÝ CHI PHÍ (EXPENSES)            -->
+        <!-- ========================================== -->
+        <section id="view-expenses" class="view-section" style="padding-top: 4px;">
+
+          <!-- Bộ lọc thời gian (Time Filter Chips - Mặc định Tất Cả) -->
+          <div class="expense-filter-scroll" style="margin-bottom: 6px;">
+            <button type="button" class="expense-period-chip active" data-expense-period="all">Tất cả</button>
+            <button type="button" class="expense-period-chip" data-expense-period="today">Hôm nay</button>
+            <button type="button" class="expense-period-chip" data-expense-period="this_week">Tuần này</button>
+            <button type="button" class="expense-period-chip" data-expense-period="this_month">Tháng này</button>
+            <button type="button" class="expense-period-chip" data-expense-period="custom_date">Tùy chọn</button>
+          </div>
+
+          <input type="date" id="expense-custom-date-input" class="form-control"
+            style="display: none; margin-bottom: 6px;" />
+
+          <!-- Thẻ Tổng Hợp KPI & 4 Nhóm Chi Phí (Đã bỏ chữ vùng 2, đẩy số tiền lên sát) -->
+          <div class="expense-stats-card" style="padding: 8px 10px; margin-bottom: 6px;">
+            <div class="expense-stats-top" style="margin-bottom: 6px; align-items: baseline;">
+              <div class="expense-stats-main-amount" id="expense-stats-total-amount"
+                style="font-size: 22px; font-weight: 900; line-height: 1.1;">0 đ</div>
+              <div class="expense-stats-count-badge" id="expense-stats-total-count"
+                style="font-size: 11px; padding: 2px 7px;">0 phiếu chi</div>
+            </div>
+
+            <div class="expense-stats-breakdown-grid" id="expense-stats-breakdown">
+              <!-- Dynamic 4 Categories Breakdown Badges -->
+            </div>
+          </div>
+
+          <!-- Thanh tìm kiếm -->
+          <div class="form-group" style="margin-bottom: 8px;">
+            <div class="search-input-wrapper">
+              <input type="text" id="expense-search-input" class="form-control"
+                placeholder="🔍 Tìm theo hạng mục, người bán, ghi chú..." autocomplete="off" />
+              <button type="button" class="btn-input-clear" id="btn-clear-expense-search" style="display: none;"
+                onclick="document.getElementById('expense-search-input').value=''; ChiPhiUI.currentFilters.keyword=''; ChiPhiUI.renderExpenseManagement(); this.style.display='none';">✕</button>
+            </div>
+          </div>
+
+          <!-- Danh sách phiếu chi -->
+          <div id="expense-list-container" class="expense-list-container">
+            <!-- Dynamic Expense Cards -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="expense-list-empty" class="empty-state"
+            style="display: none; padding: 30px 15px; text-align: center;">
+            <div class="empty-state-icon" style="font-size: 38px; margin-bottom: 6px;">💸</div>
+            <div class="empty-state-title" style="font-weight: 700; font-size: 14px;">Chưa có phiếu chi nào trong kỳ
+            </div>
+            <div class="empty-state-text" style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Nhấn nút
+              "+" tròn bên dưới để ghi chép chi phí đầu tiên</div>
+            <button type="button" class="btn btn-primary"
+              style="margin-top: 10px; background: #dc2626; border-color: #dc2626; padding: 7px 16px; font-weight: 700;"
+              onclick="ChiPhiUI.openExpenseForm()">
+              ➕ Tạo Phiếu Chi Mới
+            </button>
+          </div>
+
+          <!-- Floating Action Button (+) -->
+          <button type="button" class="expense-fab" onclick="ChiPhiUI.openExpenseForm()" title="Thêm phiếu chi mới">
+            +
+          </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB: QUẢN LÝ NGƯỜI DÙNG & PHÂN QUYỀN (USERS)-->
+        <!-- ========================================== -->
+        <section id="view-users" class="view-section">
+          <!-- 1. KPI Stats Summary Cards -->
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px;">
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap;">👥 Tổng số
+              </div>
+              <div id="user-stat-total"
+                style="font-size: 13px; font-weight: 900; color: var(--primary); margin-top: 1px;">0</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: #059669; white-space: nowrap;">✓ Hoạt động</div>
+              <div id="user-stat-active" style="font-size: 13px; font-weight: 900; color: #059669; margin-top: 1px;">0
+              </div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--danger); white-space: nowrap;">🔒 Đã khóa
+              </div>
+              <div id="user-stat-locked"
+                style="font-size: 13px; font-weight: 900; color: var(--danger); margin-top: 1px;">0</div>
+            </div>
+            <div class="card"
+              style="padding: 6px 4px; text-align: center; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); margin-bottom: 0 !important;">
+              <div style="font-size: 11px; font-weight: 700; color: #4f46e5; white-space: nowrap;">🚚 Nhân viên</div>
+              <div id="user-stat-staff" style="font-size: 13px; font-weight: 900; color: #4f46e5; margin-top: 1px;">0
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Sticky Search Bar & Filters -->
+          <div class="sticky-search-bar" style="margin-bottom: 6px;">
+            <div class="flex gap-2 items-center">
+              <div class="search-input-wrapper" style="flex: 1; min-width: 0;">
+                <input type="text" id="user-search-input" class="form-control"
+                  placeholder="🔍 Tìm kiếm theo Tên, Email, SĐT..." style="font-size: 12.5px; padding: 7px 10px;" />
+                <button type="button" class="btn-input-clear" id="btn-clear-user-search" title="Xóa tìm kiếm">✕</button>
+              </div>
+
+              <!-- Lọc Vai Trò -->
+              <select id="user-role-filter-select" class="form-control"
+                style="width: auto; max-width: 115px; font-size: 11.5px; font-weight: 700; padding: 6px 4px;">
+                <option value="all">👑 Tất cả vai trò</option>
+                <option value="Admin">Admin</option>
+                <option value="Quan_Ly">Quản lý</option>
+                <option value="Nhan_Vien">Nhân viên</option>
+                <option value="Ke_Toan">Kế toán</option>
+              </select>
+
+              <!-- Lọc Trạng Thái -->
+              <select id="user-status-filter-select" class="form-control"
+                style="width: auto; max-width: 100px; font-size: 11.5px; font-weight: 700; padding: 6px 4px;">
+                <option value="all">⚡ Trạng thái</option>
+                <option value="active">✓ Hoạt động</option>
+                <option value="locked">🔒 Đã khóa</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Danh sách người dùng -->
+          <div id="user-list-container">
+            <!-- Dynamic user cards -->
+          </div>
+
+          <!-- 4. Floating Action Button (+) Cố định góc dưới -->
+          <button type="button" class="user-fab" id="btn-fab-add-user" onclick="PhanQuyenUI.openUserModal()" title="Thêm tài khoản & phân quyền mới">
+            +
+          </button>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB: QUẢN LÝ MƯỢN TRẢ VẬT TƯ (ASSETS)      -->
+        <!-- ========================================== -->
+        <section id="view-assets" class="view-section" style="padding-top: 4px; position: relative;">
+
+          <!-- Thẻ Thống Kê Tổng Quan Số Dư Ngoài Thị Trường -->
+          <div id="assets-stat-cards-container"></div>
+
+          <!-- Vùng 2: Thanh Tìm Kiếm & Bộ Lọc Cố Định Phía Trên (Sticky Filter Bar) -->
+          <div class="assets-sticky-filter-bar" style="position: sticky; top: 0; z-index: 90; background: var(--bg-main); padding: 4px 0 6px 0; margin-bottom: 6px;">
+            <div class="flex gap-1.5 items-center">
+              <div class="search-input-wrapper flex-1">
+                <input type="text" id="assets-holding-search-input" class="form-control" placeholder="🔍 Tìm tên quán, SĐT, địa chỉ..." autocomplete="off" />
+                <button type="button" class="btn-input-clear" id="btn-clear-assets-search" style="display: none;" onclick="document.getElementById('assets-holding-search-input').value=''; VatTuUI.holdingFilters.keyword=''; VatTuUI.renderHoldingList(); this.style.display='none';">✕</button>
+              </div>
+
+              <!-- 2. Lọc Phễu Chủng Loại Giống Công Nợ -->
+              <div style="position: relative;" id="asset-filter-dropdown-wrapper">
+                <button type="button" class="btn btn-secondary" id="btn-asset-filter-toggle"
+                  style="padding: 7px 10px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;"
+                  onclick="VatTuUI.toggleCategoryFilterMenu()"
+                  title="Lọc theo loại vật tư">
+                  <span id="asset-filter-icon" style="display: flex; align-items: center;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                  </span>
+                </button>
+                <!-- Dropdown menu danh mục vật tư -->
+                <div id="asset-filter-menu" class="card shadow-md"
+                  style="display: none; position: absolute; right: 0; top: calc(100% + 4px); min-width: 175px; z-index: 95; padding: 4px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); max-height: 280px; overflow-y: auto;">
+                  <!-- Dynamic items -->
+                </div>
+              </div>
+
+              <!-- 3. Nút Lịch Sử Phiếu Mượn/Trả (Tương tự Phiếu Thu bên công nợ) -->
+              <button type="button" class="btn btn-secondary" id="btn-asset-loan-history"
+                style="padding: 7px 10px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; color: var(--primary); border-color: rgba(2, 132, 199, 0.4); background: rgba(2, 132, 199, 0.08);"
+                onclick="VatTuUI.openAllLoansHistoryModal()" title="Xem lại danh sách phiếu mượn/trả">
+                📋 Phiếu Mượn/Trả
+              </button>
+
+              <!-- 4. Nút Cài đặt Loại Đồ -->
+              <button type="button" class="btn btn-secondary" style="padding: 7px 9px; font-size: 12px; font-weight: 700; white-space: nowrap;" onclick="VatTuUI.openCategoryManagementModal()" title="Cài đặt danh mục loại vật tư cho mượn">
+                ⚙️
+              </button>
+            </div>
+          </div>
+
+          <!-- Container Danh Sách Khách Hàng Đang Giữ Đồ -->
+          <div id="assets-holding-list-container"></div>
+
+          <!-- Floating Action Button (+) Cố định góc dưới để tạo phiếu -->
+          <button type="button" class="user-fab" id="btn-fab-add-asset-loan" onclick="VatTuUI.openCreateLoanModal()" title="Lập phiếu mượn / trả mới">
+            +
+          </button>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile-first) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-view="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+        <span>Bán Hàng</span>
+      </button>
+
+      <button class="nav-item" data-view="customers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+        <span>Khách Hàng</span>
+      </button>
+
+      <button class="nav-item" data-view="debts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <line x1="2" y1="10" x2="22" y2="10" />
+          <path d="M7 15h2M12 15h5" />
+        </svg>
+        <span>Công Nợ</span>
+      </button>
+
+      <button class="nav-item" data-view="revenue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+        <span>Doanh Thu</span>
+      </button>
+
+      <button class="nav-item" data-view="map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+          <line x1="8" y1="2" x2="8" y2="18" />
+          <line x1="16" y1="6" x2="16" y2="22" />
+        </svg>
+        <span>Bản Đồ</span>
+      </button>
+
+      <button class="nav-item" data-view="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+        <span>Lịch Sử</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: THÊM / SỬA KHÁCH HÀNG MỚI          -->
+  <!-- ========================================== -->
+  <div id="add-customer-modal" class="modal-backdrop">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title" id="customer-modal-title">👤 Thêm Khách Hàng Mới</h3>
+        <button class="btn-icon" onclick="KhachHangUI.closeAddCustomerModal()">✕</button>
+      </div>
+
+      <form id="add-customer-form">
+
+        <!-- 1. MỤC CHỤP ẢNH / UP ẢNH ĐƯỢC ĐƯA LÊN ĐẦU TIÊN ĐỂ LẤY HÌNH ẢNH & GPS -->
+        <div class="card"
+          style="background: var(--bg-main); border: 1.5px dashed var(--primary); padding: 10px; margin-bottom: 12px;">
+          <input type="file" id="customer-camera-input" accept="image/*" capture="environment" style="display: none;" />
+          <input type="file" id="customer-photo-input" accept="image/*" style="display: none;" />
+
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-primary flex-1" id="btn-customer-camera-trigger"
+              style="font-size: 13px; font-weight: 700; padding: 10px 8px;">
+              📷 Chụp Ảnh Trực Tiếp
+            </button>
+            <button type="button" class="btn btn-secondary flex-1"
+              onclick="document.getElementById('customer-photo-input').click()"
+              style="font-size: 13px; font-weight: 700; padding: 10px 8px;">
+              📁 Chọn Ảnh Từ Máy
+            </button>
+          </div>
+
+          <div id="customer-photo-preview" class="image-preview-box" style="display: none; margin-top: 10px;">
+            <img src="" alt="Ảnh khách hàng" />
+          </div>
+        </div>
+
+        <!-- 2. MÃ KHÁCH HÀNG (TỰ ĐỘNG LŨY TIẾN & READONLY) -->
+        <div class="form-group">
+          <label class="form-label">Mã Khách Hàng (Tự động sinh)</label>
+          <input type="text" id="cust-makh" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên Đại Diện (Cửa hàng, Tên KH,...) <span class="required">*</span></label>
+          <input type="text" id="cust-tendaidien" class="form-control"
+            placeholder="Ví dụ: Cafe Ban Mai / Nước mía chị Luyến" required
+            oninput="KhachHangUI.checkDuplicateCustomer(this.value)" />
+          <div id="customer-duplicate-warning"
+            style="display: none; margin-top: 6px; padding: 8px 10px; border-radius: 6px; background: rgba(245, 158, 11, 0.12); border: 1px solid #f59e0b; font-size: 12px; color: #b45309;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên Người Liên Hệ</label>
+          <input type="text" id="cust-tenkh" class="form-control" placeholder="Chị Lan" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Số Điện Thoại</label>
+          <input type="tel" id="cust-sdt" class="form-control" placeholder="09xxxxxxxx" />
+        </div>
+
+        <!-- GPS Coordinates -->
+        <div class="form-group">
+          <label class="form-label">Vị Trí GPS (Latitude / Longitude)</label>
+          <div class="flex gap-2" style="margin-bottom: 6px;">
+            <input type="number" step="any" id="cust-lat" class="form-control" placeholder="Latitude (vĩ độ)" />
+            <input type="number" step="any" id="cust-lng" class="form-control" placeholder="Longitude (kinh độ)" />
+          </div>
+          <button type="button" class="btn btn-secondary btn-block" id="btn-get-device-gps"
+            style="font-size: 12px; padding: 8px;">
+            📍 Lấy GPS Hiện Tại Của Thiết Bị
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô Tả Vị Trí / Địa Chỉ <span class="required">*</span></label>
+          <textarea id="cust-diachi" class="form-control" rows="2"
+            placeholder="Số nhà, tên đường, đặc điểm nhận dạng cửa hàng..." required></textarea>
+        </div>
+
+        <div class="flex gap-2" style="margin-bottom: 12px;">
+          <div class="flex-1">
+            <label class="form-label">Giá Đá Mặc Định (đ):</label>
+            <div class="flex items-center gap-1">
+              <button type="button" class="btn btn-secondary"
+                style="padding: 8px 12px; font-weight: 700; font-size: 16px; border-radius: 6px;"
+                onclick="KhachHangUI.adjustCustomerPrice('da', -500)">-</button>
+              <input type="number" id="cust-giada" class="form-control" value="7000" step="500"
+                style="text-align: center; font-weight: 700; padding: 6px 2px;" />
+              <button type="button" class="btn btn-secondary"
+                style="padding: 8px 12px; font-weight: 700; font-size: 16px; border-radius: 6px;"
+                onclick="KhachHangUI.adjustCustomerPrice('da', 500)">+</button>
+            </div>
+          </div>
+          <div class="flex-1">
+            <label class="form-label">Giá Nước Mặc Định (đ):</label>
+            <div class="flex items-center gap-1">
+              <button type="button" class="btn btn-secondary"
+                style="padding: 8px 12px; font-weight: 700; font-size: 16px; border-radius: 6px;"
+                onclick="KhachHangUI.adjustCustomerPrice('nuoc', -500)">-</button>
+              <input type="number" id="cust-gianuoc" class="form-control" value="9000" step="500"
+                style="text-align: center; font-weight: 700; padding: 6px 2px;" />
+              <button type="button" class="btn btn-secondary"
+                style="padding: 8px 12px; font-weight: 700; font-size: 16px; border-radius: 6px;"
+                onclick="KhachHangUI.adjustCustomerPrice('nuoc', 500)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ghi Chú</label>
+          <input type="text" id="cust-ghichu" class="form-control" placeholder="Thời gian giao, yêu cầu riêng..." />
+        </div>
+
+        <!-- 3. CCCD / MÃ SỐ THUẾ ĐƯA XUỐNG CUỐI FORM -->
+        <div class="form-group">
+          <label class="form-label">CCCD / Mã Số Thuế</label>
+          <input type="text" id="cust-cccd" class="form-control" placeholder="Số CCCD hoặc Mã số thuế" />
+        </div>
+
+        <div class="flex gap-2" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline-danger" id="btn-delete-customer-from-edit"
+            style="display: none; font-size: 13px; font-weight: 700; padding: 8px 12px;"
+            onclick="KhachHangUI.handleDeleteCustomerFromEditModal()">
+            🗑️ Xóa KH
+          </button>
+          <button type="button" class="btn btn-secondary flex-1" onclick="KhachHangUI.closeAddCustomerModal()">
+            Hủy Bỏ
+          </button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-submit-save-customer">
+            💾 Lưu Khách Hàng
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: SỬA THÔNG TIN ĐƠN HÀNG             -->
+  <!-- ========================================== -->
+  <div id="edit-order-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 480px; overflow-x: hidden;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="edit-order-modal-title">✏️ Sửa Đơn Hàng</h3>
+        <button class="btn-icon" onclick="DonHangUI.closeEditOrderModal()">✕</button>
+      </div>
+
+      <form id="edit-order-form">
+        <!-- Ảnh đơn hàng / Giao hàng -->
+        <div class="order-photo-edit-wrapper" id="edit-order-photo-section">
+          <label class="form-label" style="text-align: left; display: block; margin-bottom: 6px;">📸 Ảnh Đơn Hàng / Giao
+            Hàng</label>
+          <div id="edit-order-photo-container" style="display: none;" class="order-photo-edit-preview">
+            <img id="edit-order-photo-img" src="" alt="Ảnh đơn hàng" />
+            <div style="margin-top: 6px;" class="flex justify-center gap-2">
+              <button type="button" class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;"
+                onclick="document.getElementById('edit-order-photo-file').click()">
+                📷 Đổi ảnh
+              </button>
+              <button type="button" class="btn btn-outline-danger" style="padding: 3px 8px; font-size: 11px;"
+                onclick="DonHangUI.removeEditOrderPhoto()">
+                🗑️ Xóa ảnh
+              </button>
+            </div>
+          </div>
+          <div id="edit-order-photo-empty" style="padding: 10px; color: var(--text-muted); font-size: 12px;">
+            <div>Chưa có ảnh giao hàng đính kèm</div>
+            <button type="button" class="btn btn-secondary" style="margin-top: 6px; padding: 4px 10px; font-size: 12px;"
+              onclick="document.getElementById('edit-order-photo-file').click()">
+              📷 Tải / Chụp ảnh giao hàng
+            </button>
+          </div>
+          <input type="file" id="edit-order-photo-file" accept="image/*" style="display: none;"
+            onchange="DonHangUI.handleEditOrderPhotoSelected(this.files[0])" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mã Đơn Hàng</label>
+          <input type="text" id="edit-order-madh" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Khách Hàng</label>
+          <input type="text" id="edit-order-khachhang" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ngày Giao Hàng</label>
+          <input type="date" id="edit-order-ngaygio" class="form-control"
+            style="width: 100%; max-width: 100%; box-sizing: border-box;" required />
+        </div>
+
+        <div class="card" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;">🧊 Chi Tiết Đá Viên:</div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Số lượng (bịch):</label>
+              <div class="counter-mini-box" style="width: 100%; height: 36px; background: var(--bg-card);">
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('slda', -1)"
+                  style="width: 32px; height: 36px; font-size: 16px; font-weight: 800;">−</button>
+                <input type="number" class="input-mini-counter" id="edit-order-slda" min="0" value="0"
+                  style="font-size: 13px; font-weight: 700;" onchange="DonHangUI.recalculateEditOrderTotal()" />
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('slda', 1)"
+                  style="width: 32px; height: 36px; font-size: 16px; font-weight: 800;">+</button>
+              </div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Đơn giá (đ):</label>
+              <div class="counter-mini-box" style="width: 100%; height: 36px; background: var(--bg-card);">
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('dongiada', -500)"
+                  style="width: 30px; height: 36px; font-size: 16px; font-weight: 800;">−</button>
+                <input type="number" class="input-mini-counter" id="edit-order-dongiada" step="500" value="7000"
+                  style="font-size: 12.5px; font-weight: 700;" onchange="DonHangUI.recalculateEditOrderTotal()" />
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('dongiada', 500)"
+                  style="width: 30px; height: 36px; font-size: 16px; font-weight: 800;">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;">💧 Chi Tiết Nước Bình:</div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Số lượng (bình):</label>
+              <div class="counter-mini-box" style="width: 100%; height: 36px; background: var(--bg-card);">
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('slnuoc', -1)"
+                  style="width: 32px; height: 36px; font-size: 16px; font-weight: 800;">−</button>
+                <input type="number" class="input-mini-counter" id="edit-order-slnuoc" min="0" value="0"
+                  style="font-size: 13px; font-weight: 700;" onchange="DonHangUI.recalculateEditOrderTotal()" />
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('slnuoc', 1)"
+                  style="width: 32px; height: 36px; font-size: 16px; font-weight: 800;">+</button>
+              </div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label" style="font-size: 11px; margin-bottom: 3px;">Đơn giá (đ):</label>
+              <div class="counter-mini-box" style="width: 100%; height: 36px; background: var(--bg-card);">
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('dongianuoc', -500)"
+                  style="width: 30px; height: 36px; font-size: 16px; font-weight: 800;">−</button>
+                <input type="number" class="input-mini-counter" id="edit-order-dongianuoc" step="500" value="9000"
+                  style="font-size: 12.5px; font-weight: 700;" onchange="DonHangUI.recalculateEditOrderTotal()" />
+                <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('dongianuoc', 500)"
+                  style="width: 30px; height: 36px; font-size: 16px; font-weight: 800;">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="flex items-center justify-between" style="margin-bottom: 4px;">
+            <label class="form-label" style="margin-bottom: 0;">Hình Thức Thanh Toán</label>
+            <button type="button" id="btn-edit-order-view-qr" class="btn btn-secondary"
+              style="display: none; padding: 2px 8px; font-size: 11px; color: var(--primary); font-weight: 700;"
+              onclick="DonHangUI.showVietQRFromEditModal()">
+              📱 Xem Mã VietQR
+            </button>
+          </div>
+          <select id="edit-order-hinhthuctt" class="form-control"
+            onchange="DonHangUI.handleEditPaymentMethodChange(this.value)">
+            <option value="Tien_Mat">💵 Tiền Mặt</option>
+            <option value="No">⏳ Ghi Nợ</option>
+            <option value="CK">📱 Chuyển Khoản</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tổng Tiền (VNĐ) <span class="required">*</span></label>
+          <div class="counter-mini-box" style="width: 100%; height: 40px; background: var(--bg-card);">
+            <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('tongtien', -500)"
+              style="width: 36px; height: 40px; font-size: 18px; font-weight: 800;">−</button>
+            <input type="number" class="input-mini-counter" id="edit-order-tongtien"
+              style="font-weight: 800; font-size: 16px; color: var(--primary);" step="500" required />
+            <button type="button" class="btn-mini-counter" onclick="DonHangUI.adjustEditField('tongtien', 500)"
+              style="width: 36px; height: 40px; font-size: 18px; font-weight: 800;">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ghi Chú</label>
+          <input type="text" id="edit-order-ghichu" class="form-control" placeholder="Ghi chú đơn..." />
+        </div>
+
+        <div class="flex gap-2" style="margin-top: 16px;">
+          <button type="button" class="btn btn-outline-danger" id="btn-delete-order-from-edit"
+            style="font-size: 13px; font-weight: 700; padding: 8px 12px;"
+            onclick="DonHangUI.handleDeleteFromEditModal()">
+            🗑️ Xóa Đơn
+          </button>
+          <button type="button" class="btn btn-secondary flex-1" onclick="DonHangUI.closeEditOrderModal()">
+            Hủy Bỏ
+          </button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-submit-edit-order">
+            💾 Lưu Thay Đổi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: XEM CHI TIẾT KHÁCH HÀNG (DETAIL)    -->
+  <!-- ========================================== -->
+  <div id="customer-detail-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="customer-detail-title">👤 Chi Tiết Khách Hàng</h3>
+        <button class="btn-icon" onclick="KhachHangUI.closeCustomerDetailModal()">✕</button>
+      </div>
+      <div id="customer-detail-content" style="max-height: 75vh; overflow-y: auto;">
+        <!-- Render dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: XEM CHI TIẾT ĐƠN HÀNG (DETAIL)      -->
+  <!-- ========================================== -->
+  <div id="order-detail-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="order-detail-title">🧾 Chi Tiết Đơn Hàng</h3>
+        <button class="btn-icon" onclick="DonHangUI.closeOrderDetailModal()">✕</button>
+      </div>
+      <div id="order-detail-content" style="max-height: 75vh; overflow-y: auto;">
+        <!-- Render dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PHÓNG TO XEM ẢNH (IMAGE LIGHTBOX)   -->
+  <!-- ========================================== -->
+  <div id="image-lightbox-modal" class="modal-backdrop" style="background: rgba(0,0,0,0.88); z-index: 99999 !important;"
+    onclick="KhachHangUI.closeImageLightbox()">
+    <div
+      style="position: relative; max-width: 92vw; max-height: 92vh; display: flex; align-items: center; justify-content: center; margin: auto;">
+      <img id="lightbox-img" src="" alt="Ảnh phóng to"
+        style="max-width: 100%; max-height: 88vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" />
+      <button class="btn-icon"
+        style="position: absolute; top: -14px; right: -14px; background: white; color: #111; width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.4);"
+        onclick="KhachHangUI.closeImageLightbox()">✕</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: QUẢN LÝ TÀI KHOẢN NGÂN HÀNG       -->
+  <!-- ========================================== -->
+  <div id="bank-accounts-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">💳 Quản Lý Tài Khoản Ngân Hàng</h3>
+        <button class="btn-icon" onclick="NganHangUI.closeBankAccountsModal()">✕</button>
+      </div>
+
+      <div style="padding: 4px 0 12px 0;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Danh sách tài khoản nhận tiền chuyển khoản (Mã VietQR). Tài khoản trên cùng hoặc có đánh dấu ⭐ sẽ được chọn
+          mặc định.
+        </div>
+
+        <div id="bank-accounts-list-container" class="bank-accounts-list-container">
+          <!-- Dynamic bank account cards -->
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block" style="margin-top: 14px;"
+          onclick="NganHangUI.openAddAccountModal()">
+          ➕ Thêm Tài Khoản Ngân Hàng Mới
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: FORM THÊM / SỬA TÀI KHOẢN NGÂN HÀNG -->
+  <!-- ========================================== -->
+  <div id="bank-account-form-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bank-form-modal-title">➕ Thêm Tài Khoản Ngân Hàng</h3>
+        <button class="btn-icon" onclick="NganHangUI.closeAccountFormModal()">✕</button>
+      </div>
+
+      <form id="bank-account-form">
+        <div class="form-group">
+          <label class="form-label">Chọn Ngân Hàng <span class="required">*</span></label>
+          <select id="bank-form-code-select" class="form-control" required>
+            <!-- Dynamic Napas banks -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Số Tài Khoản <span class="required">*</span></label>
+          <input type="text" id="bank-form-account-number" class="form-control" placeholder="Ví dụ: 0988888888"
+            required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên Chủ Tài Khoản (In hoa không dấu) <span class="required">*</span></label>
+          <input type="text" id="bank-form-account-name" class="form-control" placeholder="DOANH NGHIEP THAI HA"
+            required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="product-checkbox-label"
+            style="padding: 8px 12px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; width: 100%;">
+            <input type="checkbox" id="bank-form-is-default" />
+            <span style="font-size: 13px; font-weight: 600;">⭐ Đặt làm tài khoản nhận tiền mặc định</span>
+          </label>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" class="btn btn-secondary flex-1" onclick="NganHangUI.closeAccountFormModal()">
+            Hủy Bỏ
+          </button>
+          <button type="submit" class="btn btn-primary flex-1">
+            💾 Lưu Tài Khoản
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: KHAI BÁO THÔNG TIN CƠ SỞ & LOGO     -->
+  <!-- ========================================== -->
+  <div id="facility-profile-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title">🏢 Thông Tin Cơ Sở & Thương Hiệu</h3>
+        <button type="button" class="btn-icon" onclick="SettingsManager.closeFacilityModal()">✕</button>
+      </div>
+
+      <div style="padding: 4px 0 12px 0;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.45;">
+          * Thông tin bên dưới sẽ được tự động hiển thị trong Bảng chi tiết giao hàng tháng, Bảng đối soát công nợ và tùy biến nhận diện thương hiệu ứng dụng.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên Cơ Sở / Hộ Kinh Doanh <span class="required">*</span></label>
+          <input type="text" id="facility-name-input" class="form-control" placeholder="Ví dụ: HKD sản xuất đá viên và nước uống Thái Hà" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mã Số Thuế (MST) hoặc Số CCCD</label>
+          <input type="text" id="facility-tax-input" class="form-control" placeholder="Ví dụ: 035091002372" />
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+            * Tự động hiển thị ở góc trên Bảng chi tiết giao hàng tháng khi chụp ảnh/xuất in.
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <div class="form-group flex-1">
+            <label class="form-label">Số Điện Thoại Cơ Sở</label>
+            <input type="tel" id="facility-phone-input" class="form-control" placeholder="Ví dụ: 0988888888" />
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label">Người Liên Hệ / Đại Diện</label>
+            <input type="text" id="facility-contact-input" class="form-control" placeholder="Ví dụ: Nguyễn Văn A" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Địa Chỉ Cơ Sở</label>
+          <input type="text" id="facility-address-input" class="form-control" placeholder="Ví dụ: Số 123 Đường ABC, Quận XYZ, TP..." />
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 16px 0;" />
+        <div style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">
+          🎨 TÙY BIẾN LOGO & NHẬN DIỆN THƯƠNG HIỆU (WHITE-LABEL)
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Link Ảnh Logo Navbar (Góc trên bên trái)</label>
+          <input type="url" id="facility-logo-app-input" class="form-control" placeholder="https://res.cloudinary.com/.../logo.png" oninput="SettingsManager.updateFacilityImagePreviews()" />
+          <div style="margin-top: 6px;">
+            <img id="preview-facility-logo-app" src="" alt="Xem trước Logo Navbar" style="max-height: 40px; display: none; border-radius: 6px; border: 1px solid var(--border-color); padding: 2px; background: var(--bg-main);" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Link Ảnh Logo Đăng Nhập (Hình tròn giữa màn hình)</label>
+          <input type="url" id="facility-logo-login-input" class="form-control" placeholder="https://res.cloudinary.com/.../round_logo.png" oninput="SettingsManager.updateFacilityImagePreviews()" />
+          <div style="margin-top: 6px;">
+            <img id="preview-facility-logo-login" src="" alt="Xem trước Logo Login" style="width: 50px; height: 50px; object-fit: contain; border-radius: 50%; display: none; border: 1px solid var(--border-color); padding: 2px; background: #ffffff;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Link Ảnh Icon Điện Thoại (Favicon / Apple Touch Icon)</label>
+          <input type="url" id="facility-logo-icon-input" class="form-control" placeholder="https://res.cloudinary.com/.../icon_192.png" oninput="SettingsManager.updateFacilityImagePreviews()" />
+          <div style="margin-top: 6px;">
+            <img id="preview-facility-logo-icon" src="" alt="Xem trước Icon" style="width: 44px; height: 44px; object-fit: contain; border-radius: 10px; display: none; border: 1px solid var(--border-color); padding: 2px; background: #ffffff;" />
+          </div>
+        </div>
+
+        <div class="flex gap-2" style="margin-top: 20px;">
+          <button type="button" class="btn btn-secondary flex-1" onclick="SettingsManager.closeFacilityModal()">
+            Đóng
+          </button>
+          <button type="button" id="btn-save-facility-profile" class="btn btn-primary flex-1" onclick="SettingsManager.handleSaveFacility()">
+            💾 Lưu Thông Tin Cơ Sở
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CẤU HÌNH THÔNG BÁO TELEGRAM ĐA NHÓM -->
+  <!-- ========================================== -->
+  <div id="telegram-config-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 540px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title">✈️ Cấu Hình Telegram Đa Nhóm</h3>
+        <button type="button" class="btn-icon" onclick="SettingsManager.closeTelegramModal()">✕</button>
+      </div>
+
+      <div style="padding: 4px 0 12px 0;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.45;">
+          Phân luồng thông báo tự động theo từng nhóm Telegram riêng biệt. Mỗi nhóm có thể dùng chung một Bot hoặc các Bot khác nhau tùy nhu cầu.
+        </div>
+
+        <div id="telegram-group-list-container">
+          <!-- Render danh sách nhóm Telegram động -->
+        </div>
+
+        <div class="flex gap-2" style="margin-top: 14px;">
+          <button type="button" class="btn btn-secondary flex-1" onclick="SettingsManager.closeTelegramModal()">
+            Đóng
+          </button>
+          <button type="button" id="btn-save-telegram-configs" class="btn btn-primary flex-1" onclick="SettingsManager.handleSaveTelegramConfigs()">
+            💾 Lưu Cấu Hình Telegram
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: BẢNG KÊ ĐỐI SOÁT CÔNG NỢ (INVOICE) -->
+  <!-- ========================================== -->
+  <div id="debt-statement-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📋 Bảng Kê Đối Soát Công Nợ</h3>
+        <button class="btn-icon" onclick="CongNoUI.closeStatementModal()">✕</button>
+      </div>
+      <div id="debt-statement-content">
+        <!-- Dynamic Statement Content -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MODAL: QUYẾT TOÁN / THU TIỀN CÔNG NỢ       -->
+  <!-- ========================================== -->
+  <div id="debt-settle-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="debt-settle-modal-title">💰 Quyết Toán Thu Công Nợ</h3>
+        <button class="btn-icon" onclick="CongNoUI.closeSettleModal()">✕</button>
+      </div>
+      <div id="debt-settle-content">
+        <!-- Dynamic Settle Form -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: LỊCH SỬ PHIẾU THU CÔNG NỢ          -->
+  <!-- ========================================== -->
+  <div id="debt-receipts-history-modal" class="modal-backdrop">
+    <div class="modal-sheet" style="max-width: 680px; max-height: 94vh; display: flex; flex-direction: column; overflow-x: hidden; width: 100%; box-sizing: border-box;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <div class="flex items-center gap-2">
+          <h3 class="modal-title" style="font-size: 16px; font-weight: 800; color: #059669;">🧾 Lịch Sử Phiếu Thu Công Nợ</h3>
+        </div>
+        <button class="btn-icon" onclick="CongNoUI.closeReceiptHistoryModal()">✕</button>
+      </div>
+
+      <!-- Filter Controls: Search & Date Range -->
+      <div style="background: var(--bg-card); padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <div class="search-input-wrapper" style="flex: 1; min-width: 170px;">
+            <input type="text" id="receipt-history-search" class="form-control" placeholder="🔍 Tìm mã PT, tên quán, tên khách..." style="font-size: 13px; padding: 7px 10px;" />
+            <button type="button" class="btn-input-clear" id="btn-clear-receipt-search" title="Xóa tìm kiếm">✕</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+            <!-- From Date Box (Chuẩn dd/mm/yyyy trên mọi thiết bị) -->
+            <div class="custom-date-box" onclick="CongNoUI.openReceiptDatePicker('from')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="receipt-history-from-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); pointer-events: none; white-space: nowrap;">dd/mm/yyyy</span>
+              <input type="date" id="receipt-history-from" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="CongNoUI.handleReceiptDateChange('from', this.value)" onclick="event.stopPropagation();" />
+            </div>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 800;">-</span>
+            <!-- To Date Box (Chuẩn dd/mm/yyyy trên mọi thiết bị) -->
+            <div class="custom-date-box" onclick="CongNoUI.openReceiptDatePicker('to')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="receipt-history-to-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); pointer-events: none; white-space: nowrap;">dd/mm/yyyy</span>
+              <input type="date" id="receipt-history-to" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="CongNoUI.handleReceiptDateChange('to', this.value)" onclick="event.stopPropagation();" />
+            </div>
+            <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 5px 8px; font-weight: 700;" onclick="CongNoUI.refreshReceiptHistory()" title="Tải lại danh sách">
+              🔄 Tải Lại
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI summary row -->
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; padding-top: 4px; border-top: 1px dashed var(--border-color);">
+          <span style="color: var(--text-secondary);">Tổng số phiếu: <b id="receipt-history-count" style="color: var(--text-main);">0</b></span>
+          <span style="color: var(--text-secondary);">Tổng tiền đã thu: <b id="receipt-history-total-money" style="color: #059669; font-size: 13px;">0 đ</b></span>
+        </div>
+      </div>
+
+      <!-- Scrollable Receipt Cards List -->
+      <div id="debt-receipts-list-container" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <!-- Dynamic Receipts List -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: XEM CHI TIẾT PHIẾU THU CÔNG NỢ      -->
+  <!-- ========================================== -->
+  <div id="debt-receipt-detail-modal" class="modal-backdrop" style="z-index: 10058;">
+    <div class="modal-sheet" style="max-width: 580px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; width: 100%; box-sizing: border-box;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <div class="flex items-center gap-2">
+          <h3 class="modal-title" id="receipt-detail-modal-title" style="font-size: 15.5px; font-weight: 800; color: #059669;">🧾 Chi Tiết Phiếu Thu</h3>
+        </div>
+        <button class="btn-icon" onclick="CongNoUI.closeReceiptDetailModal()">✕</button>
+      </div>
+      <div id="receipt-detail-content" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+        <!-- Dynamic Content -->
+      </div>
+      <div class="modal-footer" id="receipt-detail-footer" style="padding: 10px 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--bg-card);">
+        <!-- Action buttons: Sửa, Hủy, Đóng -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: SỬA PHIẾU THU CÔNG NỢ               -->
+  <!-- ========================================== -->
+  <div id="edit-debt-receipt-modal" class="modal-backdrop" style="z-index: 10060;">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="edit-debt-receipt-title" style="color: #059669;">✏️ Sửa Phiếu Thu</h3>
+        <button class="btn-icon" onclick="CongNoUI.closeEditReceiptModal()">✕</button>
+      </div>
+      <form id="edit-debt-receipt-form" onsubmit="event.preventDefault(); CongNoUI.handleSaveEditReceipt();">
+        <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Mã Phiếu Thu</label>
+            <input type="text" id="edit-receipt-code" class="form-control" readonly style="background: var(--bg-hover); font-weight: 700;" />
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Khách Hàng / Cửa Hàng</label>
+            <input type="text" id="edit-receipt-customer" class="form-control" readonly style="background: var(--bg-hover);" />
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Ngày Giờ Thu (*)</label>
+            <input type="datetime-local" id="edit-receipt-date" class="form-control" required />
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Số Tiền Thu (đ) (*)</label>
+            <input type="number" id="edit-receipt-amount" class="form-control" min="0" step="1000" required style="font-weight: 800; color: #059669; font-size: 15px;" />
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Hình Thức Thanh Toán</label>
+            <select id="edit-receipt-method" class="form-control" style="font-weight: 600;">
+              <option value="Tien_Mat">💵 Tiền mặt</option>
+              <option value="CK">📱 Chuyển khoản ngân hàng</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 3px;">Ghi Chú</label>
+            <textarea id="edit-receipt-note" class="form-control" rows="2" placeholder="Ghi chú thêm..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 10px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn btn-secondary" onclick="CongNoUI.closeEditReceiptModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-edit-receipt" style="background: #059669; border-color: #059669; font-weight: 700;">💾 Lưu Thay Đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- MODAL: BẢNG CHI TIẾT GIAO HÀNG THÁNG (EXCEL & PDF)      -->
+  <!-- ======================================================= -->
+  <div id="debt-month-detail-modal" class="modal-backdrop" style="z-index: 10055;">
+    <div class="modal-sheet month-detail-modal-sheet" style="max-width: 900px; height: 96vh; height: 96dvh; max-height: 98vh; max-height: 98dvh; display: flex; flex-direction: column; overflow: hidden; width: 100%; box-sizing: border-box; padding: 0 !important;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 10px 14px; margin-bottom: 0; flex-shrink: 0;">
+        <div class="flex items-center gap-2">
+          <h3 class="modal-title" id="month-detail-modal-header-title" style="font-size: 15px; font-weight: 800; color: #b45309;">📊 Bảng Chi Tiết Giao Hàng Tháng</h3>
+        </div>
+        <button class="btn-icon" onclick="CongNoUI.closeMonthDetailModal()">✕</button>
+      </div>
+
+      <!-- Controls bar (Bộ lọc tinh gọn & công cụ xuất file) -->
+      <div class="recon-no-print" style="background: var(--bg-card); padding: 8px 12px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;">
+        <!-- Row 1: Tháng / Năm + Khoảng ngày (dd/mm/yyyy chuẩn mọi thiết bị) + SĐT nhập tay -->
+        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+          <!-- Tháng -->
+          <div style="width: 85px;">
+            <select id="month-detail-month-select" class="form-control" style="width: 100%; font-size: 12px; font-weight: 600; padding: 5px 6px;" onchange="CongNoUI.handleMonthDetailMonthYearChange()">
+              <option value="1">Tháng 1</option>
+              <option value="2">Tháng 2</option>
+              <option value="3">Tháng 3</option>
+              <option value="4">Tháng 4</option>
+              <option value="5">Tháng 5</option>
+              <option value="6">Tháng 6</option>
+              <option value="7">Tháng 7</option>
+              <option value="8">Tháng 8</option>
+              <option value="9">Tháng 9</option>
+              <option value="10">Tháng 10</option>
+              <option value="11">Tháng 11</option>
+              <option value="12">Tháng 12</option>
+            </select>
+          </div>
+
+          <!-- Năm -->
+          <div style="width: 78px;">
+            <select id="month-detail-year-select" class="form-control" style="width: 100%; font-size: 12px; font-weight: 600; padding: 5px 6px;" onchange="CongNoUI.handleMonthDetailMonthYearChange()">
+              <!-- Dynamic year options -->
+            </select>
+          </div>
+
+          <!-- Khoảng ngày hiển thị chuẩn dd/mm/yyyy 100% trên cả iPhone & Android -->
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <!-- From Date Box -->
+            <div class="custom-date-box" onclick="CongNoUI.openMonthDetailDatePicker('from')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="month-detail-from-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-main); pointer-events: none; white-space: nowrap;">01/09/2026</span>
+              <input type="date" id="month-detail-from-date" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="CongNoUI.handleMonthDetailDateRangeChange()" onclick="event.stopPropagation();" />
+            </div>
+            <span style="color: var(--text-muted); font-weight: 800;">-</span>
+            <!-- To Date Box -->
+            <div class="custom-date-box" onclick="CongNoUI.openMonthDetailDatePicker('to')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="month-detail-to-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-main); pointer-events: none; white-space: nowrap;">30/09/2026</span>
+              <input type="date" id="month-detail-to-date" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="CongNoUI.handleMonthDetailDateRangeChange()" onclick="event.stopPropagation();" />
+            </div>
+          </div>
+
+          <!-- SĐT nhập tay nếu cần -->
+          <div style="flex: 1; min-width: 120px;">
+            <input type="text" id="month-detail-phone-input" class="form-control" placeholder="SĐT nhập tay..." style="font-size: 12px; padding: 5px 8px; width: 100%;" oninput="CongNoUI.handleMonthDetailPhoneChange(this.value)" />
+          </div>
+        </div>
+
+        <!-- Row 2: Các nút xuất file (nằm cùng 1 dòng, tiết kiệm view) -->
+        <div style="display: flex; gap: 8px; align-items: center; padding-top: 4px; border-top: 1px dashed var(--border-color);">
+          <button type="button" class="btn btn-primary" style="font-size: 11.5px; font-weight: 700; background: #15803d; border-color: #15803d; padding: 5px 10px; white-space: nowrap;" onclick="CongNoUI.exportMonthDetailExcel()">
+            📥 Tải Excel (.xlsx)
+          </button>
+          <button type="button" class="btn btn-primary" style="font-size: 11.5px; font-weight: 700; background: #dc2626; border-color: #dc2626; padding: 5px 10px; white-space: nowrap;" onclick="CongNoUI.exportMonthDetailPDF()">
+            📄 Tải PDF (.pdf)
+          </button>
+          <button type="button" class="btn btn-secondary" style="font-size: 11.5px; font-weight: 700; padding: 5px 10px; white-space: nowrap;" onclick="CongNoUI.printMonthDetail()" title="In biểu mẫu trực tiếp">
+            🖨️ In
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Sheet Body (Vùng chứa biểu mẫu có thể co giãn vừa khung) -->
+      <div id="month-detail-sheet-wrapper" style="flex: 1; overflow: auto; padding: 8px; background: #f1f5f9;">
+        <div id="month-detail-scale-container" style="width: 100%; display: flex; justify-content: center; transform-origin: top center;">
+          <div id="month-detail-sheet-print" class="month-detail-paper">
+            <!-- Dynamic Content rendered by CongNoUI.renderMonthDetailSheet() -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: FORM NHẬP CHI TIỀN (MISA STYLE)    -->
+  <!-- ========================================== -->
+  <div id="expense-form-modal" class="modal-backdrop" style="z-index: 10050;">
+    <div class="modal-sheet" style="max-width: 480px; max-height: 94vh; display: flex; flex-direction: column; overflow-x: hidden; width: 100%; box-sizing: border-box;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <div class="flex items-center gap-2">
+          <button class="btn-icon" onclick="ChiPhiUI.closeExpenseForm()">✕</button>
+          <h3 class="modal-title" id="expense-form-title" style="font-size: 15.5px; color: #dc2626;">💸 Chi Tiền (Phiếu
+            Chi)</h3>
+        </div>
+        <button type="button" class="btn-icon" style="color: var(--primary); font-weight: 700; font-size: 18px;"
+          onclick="ChiPhiUI.submitExpenseForm(false)" title="Lưu lại">
+          ✓
+        </button>
+      </div>
+
+      <div style="padding: 10px 0; overflow-y: auto; overflow-x: hidden; flex: 1; width: 100%; box-sizing: border-box;">
+        <!-- Ô Nhập Số Tiền Lớn Trực Tiếp (Tiết kiệm view theo yêu cầu) -->
+        <div class="misa-amount-card">
+          <div class="misa-amount-label">Số Tiền Chi (VNĐ)</div>
+          <div class="misa-single-amount-wrapper">
+            <input type="text" id="expense-amount-input" class="misa-big-amount-input" inputmode="numeric"
+              placeholder="0 đ" autocomplete="off" />
+          </div>
+
+          <!-- Hàng Phím Gợi Ý Số Tiền Nhanh -->
+          <div class="misa-quick-amounts-row">
+            <button type="button" class="btn-quick-amount" data-quick-amount="50000">+50k</button>
+            <button type="button" class="btn-quick-amount" data-quick-amount="100000">+100k</button>
+            <button type="button" class="btn-quick-amount" data-quick-amount="500000">+500k</button>
+            <button type="button" class="btn-quick-amount" data-quick-amount="1000000">+1M</button>
+            <button type="button" class="btn-quick-amount" data-quick-amount="5000000">+5M</button>
+            <button type="button" class="btn-quick-amount btn-clear-amount" data-quick-amount="AC">AC</button>
+          </div>
+        </div>
+
+        <!-- Chọn Hạng Mục Chi (Mở Modal Danh Mục Theo Ảnh 4) -->
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 700;">Chọn Hạng Mục Chi <span class="required">*</span></label>
+          <div class="category-picker-trigger-box" onclick="ChiPhiUI.openCategoryPickerModal()"
+            title="Bấm để chọn hạng mục">
+            <div class="flex items-center gap-2" style="flex: 1; min-width: 0;">
+              <span id="selected-category-icon" class="picker-cat-icon">🧊</span>
+              <span id="selected-category-name" class="picker-cat-name">Máy móc</span>
+            </div>
+            <span class="picker-cat-arrow">Tất cả ›</span>
+          </div>
+        </div>
+
+        <!-- Ngày Mua / Chi Tiền (Chỉ giữ ngày tháng năm, bỏ time theo yêu cầu) -->
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 700;">Ngày Mua / Chi Tiền</label>
+          <input type="date" id="expense-date-input" class="form-control" />
+        </div>
+
+        <!-- Ghi Chú / Diễn Giải -->
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 700;">Diễn Giải / Ghi Chú</label>
+          <textarea id="expense-note-input" class="form-control" rows="2"
+            placeholder="Nhập diễn giải nội dung chi..."></textarea>
+        </div>
+
+        <!-- Đính Kèm Ảnh Hóa Đơn / Chứng Từ -->
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 700;">Ảnh Hóa Đơn / Chứng Từ (Nếu có)</label>
+          <input type="file" id="expense-camera-file" accept="image/*" capture="environment" style="display: none;" />
+          <input type="file" id="expense-gallery-file" accept="image/*" style="display: none;" />
+
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-secondary flex-1" id="btn-expense-camera"
+              style="font-size: 12px; font-weight: 700; padding: 7px;">
+              📷 Chụp Ảnh Trực Tiếp
+            </button>
+            <button type="button" class="btn btn-secondary flex-1" id="btn-expense-gallery"
+              style="font-size: 12px; font-weight: 700; padding: 7px;">
+              📁 Tải Ảnh Từ Máy
+            </button>
+          </div>
+
+          <div id="expense-photo-preview-box" class="image-preview-box" style="display: none; margin-top: 8px;">
+            <img id="expense-photo-preview-img" src="" alt="Ảnh hóa đơn" />
+            <button type="button" class="btn-icon"
+              style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; border: none; width: 28px; height: 28px;"
+              onclick="ChiPhiUI.removeImage()">✕</button>
+          </div>
+        </div>
+
+        <!-- Mục Mở Rộng Thông Tin Người Bán (Collapsible Accordion ▼) -->
+        <div class="seller-accordion-header" id="btn-toggle-seller-info">
+          <span class="seller-header-title">
+            🏪 Thêm Thông Tin Người Bán / Nhà Cung Cấp
+          </span>
+          <span class="seller-header-arrow">▼</span>
+        </div>
+
+        <div class="seller-accordion-content" id="expense-seller-accordion">
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Tên Người Bán / Cửa Hàng</label>
+            <input type="text" id="expense-seller-name" class="form-control"
+              placeholder="Ví dụ: Đại lý phụ tùng Tiến Đạt" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Số Điện Thoại Người Bán</label>
+            <input type="tel" id="expense-seller-phone" class="form-control" placeholder="Ví dụ: 0912345678" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">CCCD / Mã Số Thuế (MST)</label>
+            <input type="text" id="expense-seller-tax" class="form-control"
+              placeholder="Mã số thuế hoặc CCCD người bán" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11.5px;">Địa Chỉ Người Bán</label>
+            <input type="text" id="expense-seller-address" class="form-control"
+              placeholder="Địa chỉ cơ sở / cửa hàng" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="modal-footer flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+        <button type="button" class="btn btn-secondary flex-1" id="btn-expense-save-and-new"
+          onclick="ChiPhiUI.submitExpenseForm(true)">
+          ➕ Lưu & Thêm Tiếp
+        </button>
+        <button type="button" class="btn btn-primary flex-1" id="btn-expense-save-main"
+          style="background: #dc2626; border-color: #dc2626;" onclick="ChiPhiUI.submitExpenseForm(false)">
+          💾 Lưu Lại
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHỌN HẠNG MỤC CHI (THEO ẢNH 4 MISA) -->
+  <!-- ========================================== -->
+  <div id="expense-category-picker-modal" class="modal-backdrop" style="z-index: 10065;">
+    <div class="modal-sheet" style="max-width: 460px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <div class="flex items-center gap-2">
+          <button class="btn-icon" onclick="ChiPhiUI.closeCategoryPickerModal()">✕</button>
+          <h3 class="modal-title" style="font-size: 16px;">🏷️ Chọn Hạng Mục</h3>
+        </div>
+      </div>
+
+      <!-- Ô Tìm kiếm theo tên hạng mục -->
+      <div style="padding: 8px 0 4px 0;">
+        <div class="search-input-wrapper">
+          <input type="text" id="category-search-input" class="form-control"
+            placeholder="🔍 Tìm kiếm theo tên hạng mục..." oninput="ChiPhiUI.filterCategoriesList(this.value)" />
+        </div>
+      </div>
+
+      <!-- Danh sách phân nhóm các hạng mục (Ảnh 4) -->
+      <div id="category-modal-list-container" style="overflow-y: auto; flex: 1; padding: 6px 0;">
+        <!-- Dynamic Category List -->
+      </div>
+
+      <!-- Ô nhập hạng mục tùy chỉnh nếu muốn -->
+      <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 6px;">
+        <div class="flex gap-2">
+          <input type="text" id="expense-custom-category-modal-input" class="form-control flex-1"
+            placeholder="✏️ Hoặc tự nhập hạng mục khác..." />
+          <button type="button" class="btn btn-primary" style="padding: 6px 14px; font-weight: 700;"
+            onclick="ChiPhiUI.selectCustomCategoryFromModal()">
+            Chọn
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: XEM CHI TIẾT PHIẾU CHI              -->
+  <!-- ========================================== -->
+  <div id="expense-detail-modal" class="modal-backdrop" style="z-index: 10060;">
+    <div class="modal-sheet" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📄 Chi Tiết Phiếu Chi</h3>
+        <button class="btn-icon" onclick="ChiPhiUI.closeExpenseDetail()">✕</button>
+      </div>
+      <div id="expense-detail-content">
+        <!-- Dynamic Detail Content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: THÊM / SỬA NGƯỜI DÙNG & PHÂN QUYỀN  -->
+  <!-- ========================================== -->
+  <div id="user-modal" class="modal-backdrop" style="z-index: 10070;">
+    <div class="modal-sheet" style="max-width: 520px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <h3 class="modal-title" id="user-modal-title" style="font-size: 16px;">👤 Thêm Người Dùng & Phân Quyền</h3>
+        <button class="btn-icon" type="button" onclick="PhanQuyenUI.closeUserModal()">✕</button>
+      </div>
+
+      <form id="user-modal-form" style="overflow-y: auto; flex: 1; padding: 10px 2px;">
+        <!-- 1. THÔNG TIN CƠ BẢN & ẢNH ĐẠI DIỆN -->
+        <div
+          style="font-weight: 800; font-size: 13px; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+          <span>📋</span> <span>Thông Tin Tài Khoản & Ảnh Chân Dung</span>
+        </div>
+
+        <!-- VÙNG ẢNH ĐẠI DIỆN / CHÂN DUNG -->
+        <div class="card" style="background: var(--bg-main); border: 1.5px dashed var(--primary); padding: 10px; margin-bottom: 10px;">
+          <input type="file" id="user-avatar-camera-input" accept="image/*" capture="user" style="display: none;" />
+          <input type="file" id="user-avatar-file-input" accept="image/*" style="display: none;" />
+
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+            🖼️ Ảnh Đại Diện / Chân Dung Nhân Viên
+          </div>
+
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-primary flex-1" id="btn-user-avatar-camera"
+              style="font-size: 12px; font-weight: 700; padding: 7px 6px;">
+              📷 Chụp Chân Dung
+            </button>
+            <button type="button" class="btn btn-secondary flex-1" id="btn-user-avatar-file"
+              style="font-size: 12px; font-weight: 700; padding: 7px 6px;">
+              📁 Chọn Ảnh
+            </button>
+          </div>
+
+          <div id="user-avatar-preview" class="image-preview-box" style="display: none; margin-top: 8px; position: relative;">
+            <img src="" alt="Ảnh đại diện" style="max-height: 120px; object-fit: contain; border-radius: 8px;" />
+            <button type="button" class="btn-icon" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%; width: 24px; height: 24px; font-size: 12px;" onclick="PhanQuyenUI.removeAvatarPhoto()">✕</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 12px; font-weight: 700;">Email Đăng Nhập (Google Email) <span
+              class="required">*</span></label>
+          <input type="email" id="modal-user-email" class="form-control" placeholder="vidu: nhanvien1@gmail.com"
+            required autocomplete="off" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 12px; font-weight: 700;">Họ & Tên Nhân Viên / Người Dùng <span
+              class="required">*</span></label>
+          <input type="text" id="modal-user-name" class="form-control" placeholder="Ví dụ: Nguyễn Văn An" required
+            autocomplete="off" />
+        </div>
+
+        <div class="flex gap-2" style="margin-bottom: 10px;">
+          <div class="flex-1">
+            <label class="form-label" style="font-size: 12px; font-weight: 700;">Vai Trò Mẫu</label>
+            <select id="modal-user-role" class="form-control" style="font-weight: 700; color: var(--primary);">
+              <option value="Admin">👑 Admin (Quản Trị)</option>
+              <option value="Quan_Ly">👔 Quản Lý</option>
+              <option value="Nhan_Vien" selected>🚚 Nhân Viên Giao Hàng</option>
+              <option value="Ke_Toan">📊 Kế Toán</option>
+              <option value="Tuy_Chon">⚙️ Tùy Chỉnh</option>
+            </select>
+          </div>
+          <div style="width: 140px;">
+            <label class="form-label" style="font-size: 12px; font-weight: 700;">Trạng Thái</label>
+            <label
+              style="display: flex; align-items: center; gap: 6px; padding: 7px 8px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; height: 38px; box-sizing: border-box;">
+              <input type="checkbox" id="modal-user-status-active" checked
+                style="width: 16px; height: 16px; accent-color: #059669;" />
+              <span style="font-size: 12px; font-weight: 700; color: #059669;">Kích hoạt</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. PHÂN QUYỀN MENU -->
+        <div
+          style="font-weight: 800; font-size: 13px; color: var(--primary); margin: 12px 0 6px 0; display: flex; align-items: center; gap: 6px;">
+          <span>📱</span> <span>Phân Quyền Các Menu Truy Cập</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+          Tích chọn các chức năng nhân viên này được phép nhìn thấy và sử dụng trên ứng dụng:
+        </div>
+
+        <div class="user-menu-grid" style="margin-bottom: 12px;">
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="orders" checked />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">🛒 Bán Hàng 1-Chạm</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Tạo đơn, GPS gợi ý, chụp ảnh</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="customers" checked />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">👥 Khách Hàng</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Danh bạ khách, thêm/sửa khách</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="map" checked />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">🗺️ Bản Đồ GPS</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Xem ghim vị trí quán trên map</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="history" checked />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">📜 Lịch Sử Đơn</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Xem đơn hàng, in hóa đơn</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="debts" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">📊 Quản Lý Công Nợ</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Thống kê nợ, thu tiền nợ gộp</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="revenue" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">📈 Báo Cáo Doanh Thu</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Báo cáo ngày/tháng/năm</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="expenses" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">💸 Quản Lý Chi Phí</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Nhập phiếu chi, báo cáo chi</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="bank_accounts" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">💳 Tài Khoản Ngân Hàng</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Cấu hình tài khoản VietQR</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="settings" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">⚙️ Cài Đặt Hệ Thống</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Cài đặt cấu hình giá, URL GAS</div>
+            </div>
+          </label>
+
+          <label class="user-menu-card">
+            <input type="checkbox" class="user-menu-checkbox" value="users" />
+            <div>
+              <div style="font-size: 12.5px; font-weight: 700;">👥 Quản Lý Phân Quyền</div>
+              <div style="font-size: 10px; color: var(--text-secondary);">Thêm/sửa quyền người dùng</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- 3. PHẠM VI KHÁCH HÀNG (CUSTOMER SCOPE) -->
+        <div
+          style="font-weight: 800; font-size: 13px; color: var(--primary); margin: 12px 0 6px 0; display: flex; align-items: center; gap: 6px;">
+          <span>🎯</span> <span>Phạm Vi Khách Hàng Được Thấy & Thao Tác</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+          Quy định các quán/khách hàng mà nhân viên này được xem trên Danh sách, Bản đồ GPS và Tạo đơn:
+        </div>
+
+        <div class="card" style="padding: 8px 10px; margin-bottom: 8px; background: var(--bg-main);">
+          <div style="display: flex; gap: 12px; margin-bottom: 4px;">
+            <label
+              style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700;">
+              <input type="radio" id="scope-type-all" name="user-scope-type" value="ALL" checked
+                style="accent-color: var(--primary);" />
+              <span>🌐 Toàn bộ khách hàng</span>
+            </label>
+            <label
+              style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12.5px; font-weight: 700;">
+              <input type="radio" id="scope-type-assigned" name="user-scope-type" value="ASSIGNED"
+                style="accent-color: var(--primary);" />
+              <span>📌 Chỉ định danh sách khách</span>
+            </label>
+          </div>
+
+          <!-- Khung tìm kiếm & chọn danh sách khách phân công -->
+          <div id="user-assigned-customers-box" class="scope-selector-box" style="display: none;">
+            <div
+              style="padding: 6px 8px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); display: flex; gap: 6px; align-items: center;">
+              <input type="text" id="user-scope-customer-search" class="form-control"
+                placeholder="🔍 Tìm khách theo tên, mã, SĐT, địa chỉ..." style="font-size: 12px; padding: 5px 8px;" />
+              <button type="button" class="btn btn-secondary"
+                style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap;"
+                onclick="PhanQuyenUI.selectAllCustomerScope(true)">
+                ✓ Tất cả
+              </button>
+              <button type="button" class="btn btn-secondary"
+                style="padding: 4px 8px; font-size: 11px; white-space: nowrap;"
+                onclick="PhanQuyenUI.selectAllCustomerScope(false)">
+                ✕ Bỏ chọn
+              </button>
+            </div>
+
+            <div
+              style="padding: 4px 8px; font-size: 11px; font-weight: 700; color: var(--primary); background: rgba(2, 132, 199, 0.05); border-bottom: 1px solid var(--border-color);">
+              Đã phân công: <span id="user-scope-selected-count">0</span> khách hàng (Khách do nhân viên này tự tạo sẽ
+              tự động được thêm)
+            </div>
+
+            <div id="user-scope-customers-list"
+              style="max-height: 180px; overflow-y: auto; background: var(--bg-card);">
+              <!-- Dynamic scope checkboxes -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. THÔNG TIN MỞ RỘNG & ẢNH CCCD 2 MẶT (ACCORDION) -->
+        <div class="seller-accordion-header" id="btn-toggle-user-ext-info" style="margin-top: 10px;">
+          <span class="seller-header-title">
+            👤 Thông Tin Mở Rộng & Ảnh CCCD (SĐT, CCCD 2 Mặt, Địa Chỉ)
+          </span>
+          <span class="seller-header-arrow">▼</span>
+        </div>
+
+        <div class="seller-accordion-content" id="user-ext-info-accordion">
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Số Điện Thoại Nhân Viên</label>
+            <input type="tel" id="modal-user-sdt" class="form-control" placeholder="09xxxxxxxx" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Số CCCD / CMND / Định Danh</label>
+            <input type="text" id="modal-user-cccd" class="form-control" placeholder="Số CCCD nhân viên" />
+          </div>
+
+          <!-- VÙNG ẢNH CCCD 2 MẶT -->
+          <div class="card" style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 8px;">
+            <div style="font-weight: 700; font-size: 12px; color: var(--text-main); margin-bottom: 6px;">
+              🪪 Ảnh Căn Cước Công Dân (2 Mặt)
+            </div>
+
+            <!-- Mặt trước -->
+            <div style="margin-bottom: 8px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px;">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Mặt trước CCCD:</div>
+              <input type="file" id="user-cccd-front-camera-input" accept="image/*" capture="environment" style="display: none;" />
+              <input type="file" id="user-cccd-front-file-input" accept="image/*" style="display: none;" />
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-primary flex-1" id="btn-user-cccd-front-camera" style="font-size: 11.5px; padding: 6px;">📷 Chụp Mặt Trước</button>
+                <button type="button" class="btn btn-secondary flex-1" id="btn-user-cccd-front-file" style="font-size: 11.5px; padding: 6px;">📁 Chọn Ảnh</button>
+              </div>
+              <div id="user-cccd-front-preview" class="image-preview-box" style="display: none; margin-top: 6px; position: relative;">
+                <img src="" alt="CCCD Mặt Trước" style="max-height: 110px; object-fit: contain; border-radius: 6px;" />
+                <button type="button" class="btn-icon" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 11px;" onclick="PhanQuyenUI.removeCccdFrontPhoto()">✕</button>
+              </div>
+            </div>
+
+            <!-- Mặt sau -->
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Mặt sau CCCD:</div>
+              <input type="file" id="user-cccd-back-camera-input" accept="image/*" capture="environment" style="display: none;" />
+              <input type="file" id="user-cccd-back-file-input" accept="image/*" style="display: none;" />
+              <div class="flex gap-2">
+                <button type="button" class="btn btn-primary flex-1" id="btn-user-cccd-back-camera" style="font-size: 11.5px; padding: 6px;">📷 Chụp Mặt Sau</button>
+                <button type="button" class="btn btn-secondary flex-1" id="btn-user-cccd-back-file" style="font-size: 11.5px; padding: 6px;">📁 Chọn Ảnh</button>
+              </div>
+              <div id="user-cccd-back-preview" class="image-preview-box" style="display: none; margin-top: 6px; position: relative;">
+                <img src="" alt="CCCD Mặt Sau" style="max-height: 110px; object-fit: contain; border-radius: 6px;" />
+                <button type="button" class="btn-icon" style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 11px;" onclick="PhanQuyenUI.removeCccdBackPhoto()">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Địa Chỉ Thường Trú / Tạm Trú</label>
+            <input type="text" id="modal-user-diachi" class="form-control" placeholder="Địa chỉ cư trú" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11.5px;">Ghi Chú Công Việc / Phụ Trách</label>
+            <input type="text" id="modal-user-ghichu" class="form-control" placeholder="Tuyến giao hàng, ca làm, phụ trách khu vực..." />
+          </div>
+        </div>
+
+        <!-- Footer Submit Buttons -->
+        <div class="flex gap-2" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+          <button type="button" class="btn btn-secondary flex-1" onclick="PhanQuyenUI.closeUserModal()">
+            Hủy Bỏ
+          </button>
+          <button type="submit" class="btn btn-primary flex-1" id="btn-submit-save-user" style="font-weight: 700;">
+            💾 Lưu Lại
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHI TIẾT THÔNG TIN NGƯỜI DÙNG       -->
+  <!-- ========================================== -->
+  <div id="user-detail-modal" class="modal-backdrop" style="z-index: 10075;">
+    <div class="modal-sheet" style="max-width: 520px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <h3 class="modal-title" style="font-size: 16px;">👤 Chi Tiết Người Dùng & Nhân Sự</h3>
+        <button class="btn-icon" type="button" onclick="PhanQuyenUI.closeUserDetailModal()">✕</button>
+      </div>
+
+      <div id="user-detail-content" style="overflow-y: auto; flex: 1; padding: 12px 4px;">
+        <!-- Dynamic content rendered by PhanQuyenUI.renderUserDetailModal -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: KÍCH HOẠT / GIA HẠN BẢN QUYỀN       -->
+  <!-- ========================================== -->
+  <div id="license-activation-modal" class="modal-backdrop" style="z-index: 10080;">
+    <div class="modal-sheet" style="max-width: 480px; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+        <h3 class="modal-title" style="font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          🔑 Kích Hoạt / Gia Hạn Bản Quyền
+        </h3>
+        <button class="btn-icon" type="button" onclick="LicenseService.closeActivationModal()">✕</button>
+      </div>
+
+      <div style="padding: 16px 4px 8px;">
+        <!-- Card hiển thị System ID -->
+        <div style="background: var(--bg-main); border: 1.5px dashed var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+            MÃ HỆ THỐNG CỦA BẠN (SYSTEM ID):
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <code id="modal-license-sysid" style="font-family: monospace; font-size: 14px; font-weight: 800; color: var(--primary);">
+              Đang tải...
+            </code>
+            <button type="button" class="btn btn-secondary" onclick="LicenseService.copySystemId()" style="padding: 4px 10px; font-size: 12px; white-space: nowrap;">
+              📋 Sao Chép
+            </button>
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.45;">
+            ℹ️ Hãy gửi mã này cho nhà phát hành để nhận mã kích hoạt (Hotline/Zalo: <a href="tel:0387977348" style="color: var(--primary); font-weight: 700; text-decoration: none;">0387.977.348</a> | Email: <a href="mailto:ds72093@gmail.com" style="color: var(--primary); font-weight: 600; text-decoration: none;">ds72093@gmail.com</a>).
+          </div>
+        </div>
+
+        <!-- Ô nhập Key -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="font-size: 13px; font-weight: 700; margin-bottom: 6px; display: block;">
+            Dán Mã Bản Quyền (License Key):
+          </label>
+          <textarea id="input-license-key-modal" class="form-control" rows="3"
+            placeholder="Dán mã kích hoạt bắt đầu bằng THKEY-... vào đây"
+            style="font-family: monospace; font-size: 12.5px; resize: none;"></textarea>
+        </div>
+
+        <!-- Nút thao tác -->
+        <div class="flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 12px;">
+          <button type="button" class="btn btn-secondary flex-1" onclick="LicenseService.closeActivationModal()">
+            Đóng
+          </button>
+          <button type="button" class="btn btn-primary flex-1" id="btn-submit-activate-key" onclick="LicenseService.handleSaveActivationFromModal()" style="font-weight: 700;">
+            🚀 Kích Hoạt
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: LẬP PHIẾU MƯỢN / TRẢ VẬT TƯ         -->
+  <!-- ========================================== -->
+  <div id="asset-loan-modal" class="modal-backdrop" style="z-index: 10070;">
+    <div class="modal-sheet" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="asset-loan-modal-title">📦 Lập Phiếu Mượn / Trả Vật Tư</h3>
+        <button type="button" class="btn-icon" onclick="VatTuUI.closeCreateLoanModal()">✕</button>
+      </div>
+
+      <form id="asset-loan-form" onsubmit="event.preventDefault(); VatTuUI.handleSaveLoan();">
+        <div class="modal-body" style="padding: 14px;">
+
+          <!-- Mã Phiếu -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 12px;">Mã Phiếu Ghi Nhận:</label>
+            <input type="text" id="loan-maphieu" class="form-control" readonly style="background: var(--bg-main); font-weight: 700;" />
+          </div>
+
+          <!-- Khách Hàng (Dạng ô gõ tìm kiếm kèm nút GPS góc phải cùng hàng) -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 12px;">Khách Hàng / Điểm Bán <span class="required">*</span>:</label>
+            <div class="flex gap-1.5 items-center">
+              <div class="customer-select-wrapper" id="loan-customer-select-wrapper" style="flex: 1; min-width: 0; position: relative; z-index: 100;">
+                <div class="customer-search-input-box" id="loan-customer-search-input-box">
+                  <input type="text" id="loan-customer-search-input" class="customer-search-input"
+                    placeholder="🔍 Chọn hoặc tìm kiếm khách hàng..." autocomplete="off" />
+                  <button type="button" class="btn-clear-customer-search" id="btn-clear-loan-customer-search"
+                    style="display: none;">✕</button>
+                  <button type="button" class="btn-toggle-customer-dropdown" id="btn-toggle-loan-customer-dropdown">▼</button>
+                </div>
+                <input type="hidden" id="loan-cust-makh" value="" />
+                <!-- Dropdown danh sách gợi ý khách hàng -->
+                <div class="customer-dropdown-menu" id="loan-customer-dropdown-menu" style="max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary" id="btn-loan-customer-gps"
+                style="font-size: 12px; font-weight: 700; padding: 7px 10px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; height: 38px;"
+                onclick="VatTuUI.handleGetDeviceGps()" title="Lấy GPS gợi ý khách gần nhất">
+                📍 GPS
+              </button>
+            </div>
+            <!-- Preview số dư hiện tại của khách -->
+            <div id="loan-cust-balance-preview" style="display: none; margin-top: 4px; padding: 6px 8px; background: rgba(2, 132, 199, 0.06); border-radius: 6px; font-size: 12px;"></div>
+          </div>
+
+          <!-- Loại giao dịch (Nút chọn bôi màu xanh lá, bỏ radio) -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 12px;">Loại Giao Dịch <span class="required">*</span>:</label>
+            <input type="hidden" id="loan-selected-type" value="MUON" />
+            <div class="flex gap-2">
+              <button type="button" id="btn-loan-type-muon" class="btn flex-1 flex items-center justify-center gap-1.5"
+                style="padding: 11px 10px; cursor: pointer; border-radius: 8px; font-size: 13.5px; border: 1.5px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-weight: 600; transition: all 0.2s;"
+                onclick="VatTuUI.setLoanType('MUON')">
+                <span>➕ Khách Mượn</span>
+              </button>
+              <button type="button" id="btn-loan-type-tra" class="btn flex-1 flex items-center justify-center gap-1.5"
+                style="padding: 11px 10px; cursor: pointer; border-radius: 8px; font-size: 13.5px; border: 1.5px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-weight: 600; transition: all 0.2s;"
+                onclick="VatTuUI.setLoanType('TRA')">
+                <span>↩️ Khách Trả</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chủng Loại Vật Tư / Thiết Bị (Droplist có ô tích chọn) -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 12px; margin-bottom: 6px;">
+              📦 Danh Sách Vật Tư / Thiết Bị <span class="required">*</span>:
+            </label>
+
+            <!-- Droplist có ô tích chọn vật tư -->
+            <div class="category-dropdown-wrapper" id="loan-category-dropdown-wrapper" style="position: relative; margin-bottom: 8px;">
+              <button type="button" class="form-control flex items-center justify-between" id="btn-toggle-loan-cat-dropdown"
+                style="width: 100%; cursor: pointer; background: var(--bg-card); font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border-color); text-align: left;"
+                onclick="VatTuUI.toggleCategoryDropdown(event)">
+                <span id="loan-cat-dropdown-title" style="color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  📦 Chọn vật tư / thiết bị...
+                </span>
+                <span style="font-size: 11px; color: var(--text-muted); margin-left: 6px;">▼</span>
+              </button>
+
+              <div id="loan-category-dropdown-menu" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); z-index: 105; max-height: 220px; overflow-y: auto; padding: 4px;">
+                <!-- Rendered dynamically with checkboxes -->
+              </div>
+            </div>
+
+            <!-- Danh sách các vật tư đã chọn kèm ô nhập số lượng & nút nhanh 1, +5, +10 -->
+            <div id="loan-selected-items-container" class="flex flex-col gap-2">
+              <!-- Render động từ VatTuUI.renderSelectedLoanItems() -->
+            </div>
+          </div>
+
+          <!-- Ngày Thực Hiện -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label class="form-label" style="font-size: 12px;">Ngày Thực Hiện:</label>
+            <input type="date" id="loan-ngay" class="form-control" style="font-size: 13.5px; font-weight: 600;" />
+          </div>
+
+          <!-- Hình ảnh đính kèm (Đơn giản hóa: 1 ảnh) -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+              <label class="form-label" style="font-size: 12px; margin: 0;">📸 Ảnh Hiện Trạng / Biên Bản:</label>
+              <span id="loan-photo-count-badge" class="badge badge-secondary" style="font-size: 11px; display: none;">1 ảnh</span>
+            </div>
+
+            <input type="file" id="loan-camera-input" accept="image/*" capture="environment" style="display: none;" />
+            <input type="file" id="loan-photo-input" accept="image/*" style="display: none;" />
+
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-secondary flex-1" style="font-size: 12.5px; font-weight: 700; padding: 8px 6px;" onclick="document.getElementById('loan-camera-input').click()">
+                📷 Chụp Ảnh
+              </button>
+              <button type="button" class="btn btn-secondary flex-1" style="font-size: 12.5px; font-weight: 700; padding: 8px 6px;" onclick="document.getElementById('loan-photo-input').click()">
+                📁 Chọn Ảnh
+              </button>
+            </div>
+
+            <!-- Danh sách preview thumbnails -->
+            <div id="loan-photos-preview-container" class="flex gap-2 flex-wrap" style="display: none; margin-top: 8px; padding: 6px; background: var(--bg-main); border-radius: 8px; border: 1px dashed var(--border-color);">
+            </div>
+          </div>
+
+          <!-- Ghi Chú -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label" style="font-size: 12px;">Ghi chú:</label>
+            <textarea id="loan-ghichu" class="form-control" rows="2" placeholder="VD: Tủ Sanaky 400L serial 9821, vỏ mới 100%, thùng xốp loại to..."></textarea>
+          </div>
+
+          <div class="flex gap-2">
+            <button type="button" class="btn btn-secondary flex-1" onclick="VatTuUI.closeCreateLoanModal()">
+              Hủy
+            </button>
+            <button type="submit" class="btn btn-primary flex-1" id="btn-submit-save-loan" style="font-weight: 700;">
+              💾 Lưu Phiếu
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: QUẢN LÝ DANH MỤC LOẠI VẬT TƯ        -->
+  <!-- ========================================== -->
+  <div id="asset-category-modal" class="modal-backdrop" style="z-index: 10075;">
+    <div class="modal-sheet" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ Danh Mục Loại Vật Tư Cho Mượn</h3>
+        <button type="button" class="btn-icon" onclick="VatTuUI.closeCategoryManagementModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 14px;">
+        <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px;">
+          📋 Danh sách loại vật tư hiện tại:
+        </div>
+        <div id="asset-category-list-container" style="max-height: 200px; overflow-y: auto; margin-bottom: 14px;"></div>
+
+        <!-- Form thêm loại mới -->
+        <div class="card" style="padding: 10px; background: var(--bg-main); border: 1px dashed var(--border-color);">
+          <div style="font-size: 12.5px; font-weight: 700; margin-bottom: 8px; color: var(--primary);">
+            ➕ Thêm Chủng Loại Vật Tư Mới:
+          </div>
+          <div class="form-group" style="margin-bottom: 6px;">
+            <label class="form-label" style="font-size: 11.5px;">Tên loại vật tư (*):</label>
+            <input type="text" id="new-cat-name" class="form-control" placeholder="VD: Bình sứ có vòi, Chân kệ sắt..." />
+          </div>
+          <div class="flex gap-2" style="margin-bottom: 8px;">
+            <div class="flex-1">
+              <label class="form-label" style="font-size: 11.5px;">Đơn vị tính:</label>
+              <input type="text" id="new-cat-unit" class="form-control" value="Cái" placeholder="Vỏ, Chiếc, Bình..." />
+            </div>
+            <div style="width: 80px;">
+              <label class="form-label" style="font-size: 11.5px;">Icon:</label>
+              <input type="text" id="new-cat-icon" class="form-control" value="📦" style="text-align: center;" />
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-block" onclick="VatTuUI.handleSaveNewCategory()" style="font-size: 12px; font-weight: 700; padding: 7px;">
+            ➕ Thêm Vào Danh Mục
+          </button>
+        </div>
+
+        <div style="margin-top: 12px;">
+          <button type="button" class="btn btn-secondary btn-block" onclick="VatTuUI.closeCategoryManagementModal()">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: LỊCH SỬ PHIẾU MƯỢN / TRẢ VẬT TƯ     -->
+  <!-- ========================================== -->
+  <div id="asset-all-loans-history-modal" class="modal-backdrop" style="z-index: 10055;">
+    <div class="modal-sheet" style="max-width: 680px; max-height: 94vh; display: flex; flex-direction: column; overflow-x: hidden; width: 100%; box-sizing: border-box;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+        <div class="flex items-center gap-2">
+          <h3 class="modal-title" style="font-size: 16px; font-weight: 800; color: var(--primary);">📋 Danh Sách Phiếu Mượn / Trả</h3>
+        </div>
+        <button class="btn-icon" onclick="VatTuUI.closeAllLoansHistoryModal()">✕</button>
+      </div>
+
+      <!-- Filter Controls: Search & Date Range & Filter Pills -->
+      <div style="background: var(--bg-card); padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <div class="search-input-wrapper" style="flex: 1; min-width: 170px;">
+            <input type="text" id="loan-history-search" class="form-control" placeholder="🔍 Tìm mã phiếu, tên quán, SĐT..." style="font-size: 13px; padding: 7px 10px;" />
+            <button type="button" class="btn-input-clear" id="btn-clear-loan-search" title="Xóa tìm kiếm" style="display: none;" onclick="document.getElementById('loan-history-search').value=''; VatTuUI.loadAndRenderAllLoansHistory(); this.style.display='none';">✕</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+            <!-- From Date Box -->
+            <div class="custom-date-box" onclick="VatTuUI.openLoanDatePicker('from')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="loan-history-from-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); pointer-events: none; white-space: nowrap;">dd/mm/yyyy</span>
+              <input type="date" id="loan-history-from" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="VatTuUI.handleLoanDateChange('from', this.value)" onclick="event.stopPropagation();" />
+            </div>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 800;">-</span>
+            <!-- To Date Box -->
+            <div class="custom-date-box" onclick="VatTuUI.openLoanDatePicker('to')"
+              style="position: relative; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 5px 6px; width: 100px; box-sizing: border-box; cursor: pointer;">
+              <span id="loan-history-to-label" style="font-size: 11.5px; font-weight: 800; color: var(--text-muted); pointer-events: none; white-space: nowrap;">dd/mm/yyyy</span>
+              <input type="date" id="loan-history-to" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="VatTuUI.handleLoanDateChange('to', this.value)" onclick="event.stopPropagation();" />
+            </div>
+            <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 5px 8px; font-weight: 700;" onclick="VatTuUI.refreshAllLoansHistory()" title="Tải lại danh sách">
+              🔄 Tải Lại
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Row: Type filter (Tất cả, Mượn, Trả) & Category filter & KPI summary -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; font-size: 12px; padding-top: 4px; border-top: 1px dashed var(--border-color);">
+          <div class="flex gap-1.5 items-center flex-wrap">
+            <button type="button" class="btn btn-primary" id="btn-loan-filter-all" style="font-size: 11px; padding: 3px 8px; font-weight: 700; border-radius: 12px;" onclick="VatTuUI.setLoanHistoryTypeFilter('ALL')">Tất cả</button>
+            <button type="button" class="btn btn-secondary" id="btn-loan-filter-muon" style="font-size: 11px; padding: 3px 8px; font-weight: 700; border-radius: 12px;" onclick="VatTuUI.setLoanHistoryTypeFilter('MUON')">➕ Mượn</button>
+            <button type="button" class="btn btn-secondary" id="btn-loan-filter-tra" style="font-size: 11px; padding: 3px 8px; font-weight: 700; border-radius: 12px;" onclick="VatTuUI.setLoanHistoryTypeFilter('TRA')">↩️ Trả</button>
+            <select id="loan-history-cat-filter" class="form-control" style="font-size: 11px; font-weight: 600; padding: 3px 6px; border-radius: 12px; width: auto; max-width: 130px; height: 26px;" onchange="VatTuUI.handleLoanHistoryCatChange(this.value)">
+              <option value="ALL">📦 Tất cả loại</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 11.5px;">
+            <span style="color: var(--text-secondary);">Tổng: <b id="loan-history-total-count" style="color: var(--text-main);">0</b></span>
+            <span style="color: var(--text-secondary);">Mượn: <b id="loan-history-muon-count" style="color: var(--primary);">0</b></span>
+            <span style="color: var(--text-secondary);">Trả: <b id="loan-history-tra-count" style="color: #10b981;">0</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Loan Cards List -->
+      <div id="asset-all-loans-list-container" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <!-- Dynamic Loans List -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- JavaScript Modules (Đã gộp & bảo mật) -->
+  <script src="js/bundle.min.js"></script>
+</body>
+
+</html>

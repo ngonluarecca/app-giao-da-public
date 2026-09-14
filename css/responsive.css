@@ -1,0 +1,101 @@
+/* ==========================================================================
+   DA-THAIHA: RESPONSIVE ADAPTATION (MOBILE, TABLET, DESKTOP)
+   ========================================================================== */
+
+@media (min-width: 641px) {
+  :root {
+    --max-content-width: 768px;
+  }
+
+  .product-row-main {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .modal-sheet {
+    max-width: 560px;
+    border-radius: var(--radius-lg);
+    margin-bottom: auto;
+    margin-top: auto;
+  }
+
+  .modal-backdrop {
+    align-items: center;
+  }
+
+  .payment-grid {
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --max-content-width: 1024px;
+    --bottom-nav-height: 0px;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  /* Desktop Header Navigation */
+  .desktop-nav {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .desktop-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .desktop-nav-link:hover, .desktop-nav-link.active {
+    color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .main-content {
+    margin-bottom: 0px;
+  }
+
+  .order-summary-box {
+    margin-bottom: 56px;
+  }
+
+  .fixed-order-action-bar {
+    bottom: 0px;
+  }
+
+  .fab-btn {
+    bottom: 24px;
+    right: max(20px, calc((100vw - var(--max-content-width)) / 2 + 20px));
+  }
+}
+
+@media (max-width: 1023px) {
+  .desktop-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo-img {
+    height: 38px;
+    max-height: 38px;
+    max-width: 180px;
+  }
+}
+
