@@ -25,6 +25,20 @@
     align-items: center;
   }
 
+  .modal-sheet.modal-sheet-tall,
+  #customer-detail-modal .modal-sheet,
+  #customer-orders-modal .modal-sheet,
+  #order-detail-modal .modal-sheet,
+  #debt-statement-modal .modal-sheet,
+  #debt-receipts-history-modal .modal-sheet,
+  #asset-customer-history-modal .modal-sheet,
+  #asset-all-loans-history-modal .modal-sheet,
+  #user-detail-modal .modal-sheet,
+  #expense-detail-modal .modal-sheet {
+    height: auto;
+    max-height: 90vh;
+  }
+
   .payment-grid {
     gap: 12px;
   }

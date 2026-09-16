@@ -88,9 +88,21 @@
 }
 
 .btn-danger {
-  background: var(--danger-light);
-  color: var(--danger);
-  border-color: rgba(239, 68, 68, 0.2);
+  background: var(--danger);
+  color: #ffffff !important;
+  border: none;
+}
+
+.btn-danger:hover,
+.btn-danger:active {
+  background: #dc2626;
+  color: #ffffff !important;
+}
+
+#btn-confirm-delete-order {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border: none !important;
 }
 
 .btn-outline-danger {
@@ -499,7 +511,7 @@
 /* Main single line: [Tên Sản phẩm] [SL Counter] [Đơn giá Counter] */
 .product-line-main {
   display: grid;
-  grid-template-columns: 60px 1fr 1.3fr;
+  grid-template-columns: 75px 1fr 1.3fr;
   align-items: center;
   gap: 8px;
 }
@@ -574,7 +586,7 @@
 /* Sub-row: Căn thẳng hàng hoàn hảo với cột SL và cột Giá phía trên */
 .product-line-sub {
   display: grid;
-  grid-template-columns: 60px 1fr 1.3fr;
+  grid-template-columns: 75px 1fr 1.3fr;
   align-items: center;
   gap: 8px;
   margin-top: 6px;
@@ -818,7 +830,7 @@ body.modal-open {
   background: var(--bg-card);
   width: 100%;
   max-width: var(--max-content-width);
-  max-height: 88vh;
+  max-height: 94vh;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: 20px 16px;
   overflow-y: auto;
@@ -829,6 +841,66 @@ body.modal-open {
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Tối ưu không gian hiển thị cho các popup xem thông tin & lịch sử:
+   - Khi ít nội dung (như Ảnh 1): Chiều cao tự co gọn gàng theo nội dung (height: auto), các nút bấm nằm ngay sát bên dưới, không bị dãn thừa khoảng trắng trống hoác ở đáy.
+   - Khi nhiều nội dung (như Ảnh 2): Tự động bung cao lên tới 92% - 94% màn hình (max-height: 92vh), mở rộng không gian xem tối đa và cuộn mượt mà.
+*/
+.modal-sheet.modal-sheet-tall,
+#customer-detail-modal .modal-sheet,
+#customer-orders-modal .modal-sheet,
+#order-detail-modal .modal-sheet,
+#debt-statement-modal .modal-sheet,
+#debt-receipts-history-modal .modal-sheet,
+#debt-receipt-detail-modal .modal-sheet,
+#asset-customer-history-modal .modal-sheet,
+#asset-all-loans-history-modal .modal-sheet,
+#user-detail-modal .modal-sheet,
+#expense-detail-modal .modal-sheet {
+  height: auto;
+  max-height: 92vh;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+#discount-orders-detail-modal .modal-sheet,
+#deleted-orders-modal .modal-sheet {
+  min-height: 75vh;
+  height: 85vh;
+  max-height: 94vh;
+  max-height: 94dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+#customer-detail-modal .modal-sheet,
+#customer-orders-modal .modal-sheet,
+#modal-product-category-settings .modal-sheet {
+  max-width: 600px !important;
+}
+
+#order-detail-modal .modal-sheet {
+  max-width: 560px !important;
+}
+
+#debt-statement-modal .modal-sheet {
+  max-width: 600px !important;
+}
+
+#customer-detail-modal #customer-detail-content,
+#order-detail-modal #order-detail-content,
+#debt-statement-modal #debt-statement-content,
+#user-detail-modal #user-detail-content,
+#expense-detail-modal #expense-detail-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: none !important;
+  min-height: 0;
 }
 
 .modal-backdrop.active .modal-sheet {
@@ -2898,5 +2970,368 @@ body.modal-open {
   background: #0d9488;
 }
 
+/* ========================================================================== */
+/* CẤU HÌNH NGÀNH HÀNG KINH DOANH (MULTI-PRODUCT FEATURE TOGGLES)             */
+/* ========================================================================== */
+html.app-hide-da .feature-da,
+body.app-hide-da .feature-da,
+body.app-hide-da [data-product-feature="da"] {
+  display: none !important;
+}
+
+html.app-hide-nuoc .feature-nuoc,
+body.app-hide-nuoc .feature-nuoc,
+body.app-hide-nuoc [data-product-feature="nuoc"] {
+  display: none !important;
+}
+
+html.app-single-product .feature-product-switcher,
+body.app-single-product .feature-product-switcher {
+  display: none !important;
+}
+
+.product-active-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-main);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px dashed var(--border-color);
+  margin-bottom: 12px;
+}
+
+.product-active-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  transition: all 0.2s ease;
+}
+
+.product-active-row:not(:last-child) {
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 10px;
+}
+
+.product-active-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+  min-width: 80px;
+}
+
+.product-active-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.product-default-price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.product-default-price-wrap.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.product-default-price-wrap .price-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.stepper-box {
+  display: inline-flex;
+  align-items: center;
+  background: var(--card-bg, #ffffff);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-stepper-mini {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-main);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.btn-stepper-mini:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-stepper-mini:active {
+  transform: scale(0.92);
+}
+
+.input-price-mini {
+  width: 68px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  padding: 0 4px 0 6px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.input-price-mini::-webkit-inner-spin-button,
+.input-price-mini::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.currency-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-right: 8px;
+  user-select: none;
+}
+
+/* ==================================================================== */
+/* MULTI-PRODUCT CHIP BUTTONS & BALANCED GRID SELECTOR                  */
+/* ==================================================================== */
+.product-chips-header-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.product-chips-container {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.product-chip-btn {
+  padding: 8px 6px;
+  border-radius: var(--radius-md, 8px);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition, all 0.2s ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  user-select: none;
+  min-height: 38px;
+  box-sizing: border-box;
+}
+
+.product-chip-btn:hover {
+  border-color: #6366f1;
+  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.product-chip-btn.active,
+.product-chip-btn.selected {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  border-color: #4338ca !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+}
+
+[data-theme="dark"] .product-chip-btn {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .product-chip-btn:hover {
+  border-color: #818cf8;
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .product-chip-btn.active,
+[data-theme="dark"] .product-chip-btn.selected {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+  border-color: #818cf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.45);
+}
+
+.btn-product-settings-shortcut {
+  width: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 8px);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition, all 0.2s ease);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.btn-product-settings-shortcut:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--primary, #0284c7);
+  border-color: var(--primary, #0284c7);
+  transform: rotate(25deg);
+}
+
+/* Switch toggle mini trong bảng danh mục */
+.custom-switch-mini {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.custom-switch-mini input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider-mini {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border-color, #cbd5e1);
+  transition: 0.25s;
+  border-radius: 20px;
+}
+
+.switch-slider-mini:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.custom-switch-mini input:checked + .switch-slider-mini {
+  background-color: #10b981;
+}
+
+.custom-switch-mini input:checked + .switch-slider-mini:before {
+  transform: translateX(16px);
+}
+
+/* Action icons in table */
+.btn-action-icon {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  margin: 0 2px;
+  transition: all 0.15s;
+}
+
+.btn-action-icon:hover {
+  background: var(--bg-hover, #f1f5f9);
+}
+
+.btn-action-icon.delete:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
+}
+
+.btn-action-icon.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Icon Picker Modal Grid */
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 8px;
+}
+
+.icon-picker-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.icon-picker-btn:hover {
+  border-color: var(--primary, #0284c7);
+  background: rgba(2, 132, 199, 0.08);
+  transform: translateY(-2px);
+}
+
+.icon-picker-btn.selected {
+  border-color: var(--primary, #0284c7);
+  background: rgba(2, 132, 199, 0.15);
+  box-shadow: 0 0 0 2px var(--primary-light, rgba(2, 132, 199, 0.25));
+}
+
+.icon-picker-btn .icon-sym {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.icon-picker-btn .icon-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
 
 

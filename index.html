@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -47,6 +47,28 @@
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
+
+  <!-- Script áp dụng sớm cấu hình ngành hàng để chống nhấp nháy giao diện khi vừa mở trang -->
+  <script>
+    (function() {
+      try {
+        var p = localStorage.getItem('DA_THAIHA_FACILITY_PROFILE');
+        if (p) {
+          var parsed = JSON.parse(p);
+          var prods = parsed.active_products;
+          if (typeof prods === 'string') {
+            try { prods = JSON.parse(prods); } catch(e) { prods = prods.split(',').map(function(s){ return s.trim(); }); }
+          }
+          if (Array.isArray(prods) && prods.length > 0) {
+            var docEl = document.documentElement;
+            if (!prods.includes('da')) docEl.classList.add('app-hide-da');
+            if (!prods.includes('nuoc')) docEl.classList.add('app-hide-nuoc');
+            if (prods.length === 1) docEl.classList.add('app-single-product');
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
@@ -191,103 +213,19 @@
             </div>
           </div>
 
-          <!-- Product Details (Inline Row + Counter +/-) -->
+          <!-- Product Details (Nút chip chọn sản phẩm đổi màu nền & dòng nhập chi tiết) -->
           <div class="card" style="margin-bottom: 5px; padding: 8px 10px; box-sizing: border-box; width: 100%;">
-            <div class="flex items-center justify-between" style="margin-bottom: 8px;">
-              <span style="font-weight: 700; font-size: 14px; color: var(--text-main);">2. Đơn hàng</span>
-              <div class="flex items-center gap-2">
-                <label class="product-checkbox-label">
-                  <input type="checkbox" id="chk-enable-da" checked />
-                  <span>🧊 Đá</span>
-                </label>
-                <label class="product-checkbox-label">
-                  <input type="checkbox" id="chk-enable-nuoc" />
-                  <span>💧 Nước</span>
-                </label>
+            <!-- Thanh chọn chủng loại hàng dạng nút chip đổi màu nền -->
+            <div class="product-chips-header-bar" style="margin-bottom: 8px;">
+              <div class="product-chips-container" id="product-chips-selector-container" style="width: 100%;">
+                <!-- Rendered dynamically by DonHangUI: [Icon] [Tên tắt <= 5 ký tự] -->
               </div>
             </div>
 
-            <!-- PRODUCT 1: ĐÁ VIÊN -->
-            <div class="product-compact-row" id="product-row-da">
-              <div class="product-line-main">
-                <div class="product-name-col">
-                  <span class="product-name-title">🧊 Đá</span>
-                </div>
-
-                <div class="counter-mini-box">
-                  <button type="button" class="btn-mini-counter" id="btn-minus-da-sl">−</button>
-                  <input type="number" class="input-mini-counter" id="counter-da-sl" value="1" min="0" />
-                  <button type="button" class="btn-mini-counter" id="btn-plus-da-sl">+</button>
-                </div>
-
-                <div class="counter-mini-box price-counter">
-                  <button type="button" class="btn-mini-counter" id="btn-minus-da-price">−</button>
-                  <input type="number" class="input-mini-counter" id="counter-da-price" value="7000" step="500" />
-                  <button type="button" class="btn-mini-counter" id="btn-plus-da-price">+</button>
-                </div>
-              </div>
-
-              <!-- Sub-row: Quick 1, +5, +10 centered under SL input, and Preset prices centered under Price input -->
-              <div class="product-line-sub">
-                <div class="sub-empty-col"></div>
-
-                <!-- Aligned directly under SL Counter -->
-                <div class="quick-sl-group">
-                  <button type="button" class="btn-quick-chip" id="btn-quick-da-1">1</button>
-                  <button type="button" class="btn-quick-chip" id="btn-quick-da-5">+5</button>
-                  <button type="button" class="btn-quick-chip" id="btn-quick-da-10">+10</button>
-                </div>
-
-                <!-- Aligned directly under Price Counter -->
-                <div class="price-chips-group">
-                  <button type="button" class="btn-price-chip" data-preset-price-da="6000">6.000đ</button>
-                  <button type="button" class="btn-price-chip active" data-preset-price-da="7000">7.000đ</button>
-                  <button type="button" class="btn-price-chip" data-preset-price-da="10000">10.000đ</button>
-                </div>
-              </div>
+            <!-- Vùng hiển thị chi tiết các sản phẩm được chọn (SL, Đơn giá, Tên đầy đủ) -->
+            <div id="product-rows-dynamic-container">
+              <!-- Rendered dynamically by DonHangUI.renderProductRows() -->
             </div>
-
-            <!-- PRODUCT 2: NƯỚC BÌNH 20L -->
-            <div class="product-compact-row" id="product-row-nuoc"
-              style="display: none; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px;">
-              <div class="product-line-main">
-                <div class="product-name-col">
-                  <span class="product-name-title">💧 Nước</span>
-                </div>
-
-                <div class="counter-mini-box">
-                  <button type="button" class="btn-mini-counter" id="btn-minus-nuoc-sl">−</button>
-                  <input type="number" class="input-mini-counter" id="counter-nuoc-sl" value="1" min="0" />
-                  <button type="button" class="btn-mini-counter" id="btn-plus-nuoc-sl">+</button>
-                </div>
-
-                <div class="counter-mini-box price-counter">
-                  <button type="button" class="btn-mini-counter" id="btn-minus-nuoc-price">−</button>
-                  <input type="number" class="input-mini-counter" id="counter-nuoc-price" value="9000" step="500" />
-                  <button type="button" class="btn-mini-counter" id="btn-plus-nuoc-price">+</button>
-                </div>
-              </div>
-
-              <!-- Sub-row: Quick 1, +5, +10 centered under SL input, and Preset prices centered under Price input -->
-              <div class="product-line-sub">
-                <div class="sub-empty-col"></div>
-
-                <!-- Aligned directly under SL Counter -->
-                <div class="quick-sl-group">
-                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-1">1</button>
-                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-5">+5</button>
-                  <button type="button" class="btn-quick-chip" id="btn-quick-nuoc-10">+10</button>
-                </div>
-
-                <!-- Aligned directly under Price Counter -->
-                <div class="price-chips-group">
-                  <button type="button" class="btn-price-chip active" data-preset-price-nuoc="9000">9.000đ</button>
-                  <button type="button" class="btn-price-chip" data-preset-price-nuoc="12000">12.000đ</button>
-                  <button type="button" class="btn-price-chip" data-preset-price-nuoc="15000">15.000đ</button>
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <!-- Payment Options -->
@@ -359,13 +297,8 @@
 
           <!-- Total Summary Box -->
           <div class="order-summary-box">
-            <div class="summary-row" id="summary-da-row">
-              <span>Đá:</span>
-              <span id="summary-da-text">1 × 7.000đ = 7.000đ</span>
-            </div>
-            <div class="summary-row" id="summary-nuoc-row" style="display: none;">
-              <span>Nước:</span>
-              <span id="summary-nuoc-text">1 × 9.000đ = 9.000đ</span>
+            <div id="order-summary-items-list">
+              <!-- Rendered dynamically by DonHangUI: dòng chi tiết từng sản phẩm được chọn -->
             </div>
 
             <div class="summary-row summary-total">
@@ -493,13 +426,17 @@
             <div class="flex gap-2 items-center">
               <div class="search-input-wrapper" style="flex: 1; min-width: 0; margin-bottom: 0;">
                 <input type="text" id="history-search-input" class="form-control"
-                  placeholder="🔍 Tìm mã đơn, tên khách, SĐT..." style="font-size: 13px; padding: 7px 10px;" />
+                  placeholder="🔍 Tìm mã đơn, khách, SĐT..." style="font-size: 13px; padding: 7px 10px;" />
                 <button type="button" class="btn-input-clear" id="btn-clear-history-search"
                   title="Xóa tìm kiếm">✕</button>
               </div>
               <span id="history-count-badge" class="badge badge-primary"
-                style="font-size: 12px; font-weight: 800; padding: 6px 9px; white-space: nowrap; border-radius: 8px;">0
-                đơn</span>
+                style="font-size: 12px; font-weight: 800; padding: 6px 8px; white-space: nowrap; border-radius: 8px;">0 đơn</span>
+              <button type="button" id="btn-view-deleted-orders" class="btn btn-danger"
+                style="font-size: 11.5px; font-weight: 700; padding: 6px 9px; white-space: nowrap; border-radius: 8px; display: inline-flex; align-items: center; gap: 3px; background: #ef4444; border: none; color: #fff; cursor: pointer;"
+                onclick="DonHangUI.openDeletedOrdersModal()" title="Xem lịch sử các đơn hàng đã xóa">
+                🗑️ Đơn xóa
+              </button>
             </div>
           </div>
 
@@ -519,7 +456,7 @@
             </div>
             <div style="font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <div>
-                <b>Phiên bản:</b> <span id="app-version-display">v2.1.0</span>
+                <b>Phiên bản:</b> <span id="app-version-display">v2.2.19</span>
               </div>
               <a href="https://github.com/ngonluarecca/da-nuoc-thai-ha-2/releases" target="_blank" rel="noopener"
                 style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 500;">
@@ -558,6 +495,20 @@
               <span>📞 Hotline/Zalo: <a href="tel:0387977348" style="color: var(--primary); font-weight: 700; text-decoration: none;">0387.977.348</a></span>
               <span>✉️ Email: <a href="mailto:ds72093@gmail.com" style="color: var(--primary); font-weight: 600; text-decoration: none;">ds72093@gmail.com</a></span>
             </div>
+          </div>
+
+          <!-- Card: Danh Mục Chủng Loại Sản Phẩm & Đơn Giá -->
+          <div class="card" id="card-business-mode-settings">
+            <div class="card-header">
+              <div class="card-title">🏷️ Danh Mục Chủng Loại Sản Phẩm</div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.45;">
+              Cài đặt các chủng loại sản phẩm kinh doanh của cơ sở (Đá, Nước, và các chủng loại mở rộng), đơn vị tính, icon chuyên ngành và đơn giá mặc định (+/- 500đ).
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block" onclick="SettingsManager.openProductCategoryModal()" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 10px 16px;">
+              ⚙️ Cài Đặt Sản Phẩm
+            </button>
           </div>
 
           <!-- Card 2: Thông Tin Cơ Sở & Thương Hiệu -->
@@ -626,39 +577,9 @@
         <!-- ========================================== -->
         <!-- ========================================== -->
         <section id="view-debts" class="view-section">
-          <!-- KPI Summary Cards Header (Compact 4-col 2-row) -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px;">
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); margin-bottom: 0 !important;">
-              <div style="font-size: 11px; font-weight: 700; color: var(--danger); white-space: nowrap;">💰 Tổng tiền
-              </div>
-              <div id="debt-stat-total-money"
-                style="font-size: 12.5px; font-weight: 900; color: var(--danger); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                0 đ</div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;">👥
-                Khách nợ</div>
-              <div id="debt-stat-customer-count"
-                style="font-size: 12.5px; font-weight: 900; color: var(--text-main); margin-top: 1px; white-space: nowrap;">
-                0 khách</div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap;">🧊 Đá nợ</div>
-              <div id="debt-stat-ice-count"
-                style="font-size: 12.5px; font-weight: 900; color: var(--primary); margin-top: 1px; white-space: nowrap;">
-                0 bao</div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 11px; font-weight: 700; color: var(--secondary); white-space: nowrap;">💧 Nước nợ
-              </div>
-              <div id="debt-stat-water-count"
-                style="font-size: 12.5px; font-weight: 900; color: var(--secondary); margin-top: 1px; white-space: nowrap;">
-                0 bình</div>
-            </div>
+          <!-- KPI Summary Cards Header (Tối đa 4 ô mỗi dòng, cân đối tự động) -->
+          <div id="debt-kpi-cards-container" style="margin-bottom: 6px;">
+            <!-- Rendered dynamically by CongNoUI.renderDebtStatsHeader() -->
           </div>
 
           <!-- Search, Funnel Filter Dropdown, and Thu Gộp in Sticky Top Bar -->
@@ -798,21 +719,27 @@
                   style="font-size: 12px; font-weight: 700; padding: 6px 4px; border-radius: 8px; border: 1.5px solid var(--primary); background: var(--bg-card); color: var(--primary); cursor: pointer; width: auto; max-width: 92px; flex-shrink: 0;"
                   onchange="DoanhThuUI.setChartMetric(this.value)">
                   <option value="tongTien" selected>💰 D.Thu</option>
-                  <option value="slDa">🧊 Đá</option>
-                  <option value="slNuoc">💧 Nước</option>
+                  <option value="slDa" class="feature-da" id="opt-metric-da">🧊 Đá</option>
+                  <option value="slNuoc" class="feature-nuoc" id="opt-metric-nuoc">💧 Nước</option>
                 </select>
               </div>
             </div>
           </div>
 
-          <!-- 1.1. BỘ LỌC CHỌN RIÊNG KHÁCH HÀNG / CỬA HÀNG (TÌM KIẾM THEO TÊN QUÁN, NGƯỜI LIÊN HỆ, CÓ DẤU X) -->
+          <!-- 1.1. BỘ LỌC CHỌN THEO NHÂN VIÊN & TÌM KIẾM RIÊNG KHÁCH HÀNG (CÙNG 1 HÀNG) -->
           <div class="card" style="padding: 6px 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; position: relative;">
-            <span style="font-size: 12.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0;">🏪 Quán:</span>
+            
+            <!-- Dropdown Chọn Nhân Viên (Chỉ hiện với Admin, Quản Lý, Kế Toán) -->
+            <select id="rev-staff-select" class="form-control"
+              style="font-size: 12px; font-weight: 700; padding: 6px 6px; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--bg-card); color: var(--text-main); cursor: pointer; width: auto; max-width: 135px; flex-shrink: 0; display: none;"
+              onchange="DoanhThuUI.handleStaffChange(this.value)">
+              <option value="ALL">👤 Tất cả NV</option>
+            </select>
             
             <div class="customer-select-wrapper" id="rev-customer-select-wrapper" style="margin-bottom: 0; flex: 1; min-width: 0; position: relative;">
               <div class="customer-search-input-box" id="rev-customer-search-input-box" style="padding: 1px 6px; display: flex; align-items: center; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md);">
                 <input type="text" id="rev-customer-search-input" class="customer-search-input"
-                  placeholder="🔍 Gõ tìm tên quán, người liên hệ, SĐT..." autocomplete="off"
+                  placeholder="🔍 Tìm quán, SĐT..." autocomplete="off"
                   style="font-size: 12.5px; padding: 6px 4px; border: none; background: transparent; flex: 1; outline: none; font-weight: 600; color: var(--text-main); min-width: 0;" />
                 <button type="button" class="btn-clear-customer-search" id="btn-clear-rev-customer-search"
                   title="Xóa tìm kiếm / Bỏ lọc" style="display: none; background: none; border: none; font-size: 14px; color: var(--text-muted); cursor: pointer; padding: 4px 6px;">✕</button>
@@ -834,39 +761,10 @@
             </button>
           </div>
 
-          <!-- 2. CỤM THẺ KPI TỔNG QUAN (2 HÀNG 4 CỘT) -->
-          <!-- Hàng 1: Quy mô bán hàng -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 5px;">
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); margin-bottom: 0 !important;">
-              <div style="font-size: 10.5px; font-weight: 700; color: var(--primary); white-space: nowrap;">💰 Tổng tiền
-              </div>
-              <div id="rev-kpi-total-money"
-                style="font-size: 12.5px; font-weight: 900; color: var(--primary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                0 đ</div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 10.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;">📋
-                Tổng đơn</div>
-              <div id="rev-kpi-total-orders"
-                style="font-size: 12.5px; font-weight: 900; color: var(--text-main); margin-top: 1px; white-space: nowrap;">
-                0 đơn</div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 10.5px; font-weight: 700; color: #0284c7; white-space: nowrap;">🧊 SL Đá</div>
-              <div id="rev-kpi-total-da"
-                style="font-size: 12.5px; font-weight: 900; color: #0284c7; margin-top: 1px; white-space: nowrap;">0 bao
-              </div>
-            </div>
-            <div class="card"
-              style="padding: 6px 4px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); margin-bottom: 0 !important;">
-              <div style="font-size: 10.5px; font-weight: 700; color: #0d9488; white-space: nowrap;">💧 SL Nước</div>
-              <div id="rev-kpi-total-nuoc"
-                style="font-size: 12.5px; font-weight: 900; color: #0d9488; margin-top: 1px; white-space: nowrap;">0
-                bình</div>
-            </div>
+          <!-- 2. CỤM THẺ KPI TỔNG QUAN -->
+          <!-- Hàng Doanh số & SL từng chủng loại (Tối đa 4 ô mỗi dòng, cân đối tự động) -->
+          <div id="rev-kpi-sales-cards-container">
+            <!-- Rendered dynamically by DoanhThuUI.renderKpiSummary() -->
           </div>
 
           <!-- Hàng 2: Cơ cấu dòng tiền -->
@@ -901,6 +799,23 @@
               <div id="rev-kpi-paid-ratio"
                 style="font-size: 12px; font-weight: 900; color: #059669; margin-top: 1px; white-space: nowrap;">100%
               </div>
+            </div>
+          </div>
+
+          <!-- Thẻ KPI thứ 9: Giảm trừ / Bớt tiền (Bấm để xem danh sách chi tiết các đơn giảm trừ) -->
+          <div class="card" id="rev-kpi-discount-card" onclick="DoanhThuUI.openDiscountOrdersModal()"
+            style="padding: 7px 12px; display: flex; align-items: center; justify-content: space-between; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 8px; margin-bottom: 6px; cursor: pointer;"
+            title="Bấm để xem chi tiết danh sách các đơn hàng có giảm trừ / bớt tiền lẻ">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">🏷️</span>
+              <div>
+                <div style="font-size: 11.5px; font-weight: 800; color: #b45309;">Giảm trừ/Số đơn giảm trừ</div>
+                <div style="font-size: 10px; color: #d97706;">Bấm để xem chi tiết đơn giảm trừ</div>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div id="rev-kpi-discount-money" style="font-size: 13px; font-weight: 900; color: #dc2626;">0 đ</div>
+              <div id="rev-kpi-discount-count" style="font-size: 10.5px; font-weight: 700; color: #b45309;">(0 đơn)</div>
             </div>
           </div>
 
@@ -1291,7 +1206,7 @@
         </div>
 
         <div class="flex gap-2" style="margin-bottom: 12px;">
-          <div class="flex-1">
+          <div class="flex-1 feature-da">
             <label class="form-label">Giá Đá Mặc Định (đ):</label>
             <div class="flex items-center gap-1">
               <button type="button" class="btn btn-secondary"
@@ -1304,7 +1219,7 @@
                 onclick="KhachHangUI.adjustCustomerPrice('da', 500)">+</button>
             </div>
           </div>
-          <div class="flex-1">
+          <div class="flex-1 feature-nuoc">
             <label class="form-label">Giá Nước Mặc Định (đ):</label>
             <div class="flex items-center gap-1">
               <button type="button" class="btn btn-secondary"
@@ -1402,7 +1317,7 @@
             style="width: 100%; max-width: 100%; box-sizing: border-box;" required />
         </div>
 
-        <div class="card" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
+        <div class="card feature-da" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
           <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;">🧊 Chi Tiết Đá Viên:</div>
           <div class="flex gap-2">
             <div class="flex-1">
@@ -1430,7 +1345,7 @@
           </div>
         </div>
 
-        <div class="card" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
+        <div class="card feature-nuoc" style="background: var(--bg-main); padding: 10px; margin-bottom: 12px;">
           <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;">💧 Chi Tiết Nước Bình:</div>
           <div class="flex gap-2">
             <div class="flex-1">
@@ -1513,12 +1428,12 @@
   <!-- MODAL: XEM CHI TIẾT KHÁCH HÀNG (DETAIL)    -->
   <!-- ========================================== -->
   <div id="customer-detail-modal" class="modal-backdrop">
-    <div class="modal-sheet" style="max-width: 500px;">
+    <div class="modal-sheet modal-sheet-tall">
       <div class="modal-header">
         <h3 class="modal-title" id="customer-detail-title">👤 Chi Tiết Khách Hàng</h3>
         <button class="btn-icon" onclick="KhachHangUI.closeCustomerDetailModal()">✕</button>
       </div>
-      <div id="customer-detail-content" style="max-height: 75vh; overflow-y: auto;">
+      <div id="customer-detail-content">
         <!-- Render dynamically -->
       </div>
     </div>
@@ -1528,13 +1443,105 @@
   <!-- MODAL: XEM CHI TIẾT ĐƠN HÀNG (DETAIL)      -->
   <!-- ========================================== -->
   <div id="order-detail-modal" class="modal-backdrop">
-    <div class="modal-sheet" style="max-width: 500px;">
+    <div class="modal-sheet modal-sheet-tall">
       <div class="modal-header">
         <h3 class="modal-title" id="order-detail-title">🧾 Chi Tiết Đơn Hàng</h3>
         <button class="btn-icon" onclick="DonHangUI.closeOrderDetailModal()">✕</button>
       </div>
-      <div id="order-detail-content" style="max-height: 75vh; overflow-y: auto;">
+      <div id="order-detail-content">
         <!-- Render dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: XÁC NHẬN XÓA ĐƠN HÀNG (BẮT BUỘC NHẬP LÝ DO) -->
+  <!-- ========================================== -->
+  <div id="delete-order-reason-modal" class="modal-backdrop" style="z-index: 10070;">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div class="modal-header" style="border-bottom: 1.5px solid #fee2e2;">
+        <h3 class="modal-title" style="color: #dc2626; display: flex; align-items: center; gap: 6px;">
+          🗑️ Xác Nhận Xóa Đơn Hàng
+        </h3>
+        <button class="btn-icon" onclick="DonHangUI.closeDeleteReasonModal()">✕</button>
+      </div>
+      <div style="padding: 16px;">
+        <div id="delete-order-info-summary" style="background: var(--bg-main); padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; border: 1px dashed var(--border-color);">
+          <!-- Nạp tóm tắt đơn -->
+        </div>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" style="font-weight: 700; color: #dc2626; font-size: 13px;">
+            ⚠️ Lý do xóa đơn <span style="color: #ef4444;">*</span>:
+          </label>
+          <textarea id="delete-order-reason-input" class="form-control" rows="3"
+            placeholder="Bắt buộc nhập lý do xóa (VD: Khách hủy đơn, trùng đơn, giao nhầm...)"
+            style="font-size: 13px; resize: vertical;"></textarea>
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button type="button" class="btn btn-secondary" onclick="DonHangUI.closeDeleteReasonModal()" style="font-weight: 600;">
+            Hủy Bỏ
+          </button>
+          <button type="button" class="btn" id="btn-confirm-delete-order" onclick="DonHangUI.confirmDeleteOrderWithReason()"
+            style="background: #dc2626 !important; color: #ffffff !important; border: none; font-weight: 700; padding: 7px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35); cursor: pointer;">
+            🗑️ Xác Nhận Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: DANH SÁCH ĐƠN HÀNG ĐÃ XÓA (KÉO CON LĂN 40 ĐƠN) -->
+  <!-- ========================================== -->
+  <div id="deleted-orders-modal" class="modal-backdrop" style="z-index: 10065;">
+    <div class="modal-sheet modal-sheet-tall" style="max-width: 600px; min-height: 72vh; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1.5px solid #fee2e2;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 class="modal-title" style="color: #dc2626; font-size: 16px;">
+            🗑️ Danh Sách Đơn Đã Xóa
+          </h3>
+          <span id="deleted-orders-count-badge" class="badge" style="background: #fee2e2; color: #dc2626; font-weight: 800; font-size: 12px; border-radius: 6px;">0 đơn</span>
+        </div>
+        <button class="btn-icon" onclick="DonHangUI.closeDeletedOrdersModal()">✕</button>
+      </div>
+      <div style="padding: 10px 14px; background: var(--bg-main); border-bottom: 1px solid var(--border-color);">
+        <input type="text" id="deleted-orders-search-input" class="form-control"
+          placeholder="🔍 Tìm theo mã đơn, khách hàng, lý do..." style="font-size: 13px; padding: 6px 10px;"
+          oninput="DonHangUI.filterDeletedOrders(this.value)" />
+      </div>
+      <div id="deleted-orders-scroll-container" style="flex: 1; overflow-y: auto; padding: 12px; max-height: 70vh;">
+        <div id="deleted-orders-list-content">
+          <!-- Render danh sách đơn đã xóa -->
+        </div>
+        <div id="deleted-orders-load-more" style="text-align: center; padding: 10px; display: none;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="DonHangUI.loadMoreDeletedOrders()">
+            ⬇️ Tải thêm 40 đơn tiếp theo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHI TIẾT ĐƠN HÀNG CÓ GIẢM TRỪ / BỚT TIỀN (DOANH THU) -->
+  <!-- ========================================== -->
+  <div id="discount-orders-detail-modal" class="modal-backdrop" style="z-index: 10065;">
+    <div class="modal-sheet modal-sheet-tall" style="max-width: 620px; min-height: 72vh; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="border-bottom: 1.5px solid #fef3c7;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 class="modal-title" style="color: #b45309; font-size: 16px;">
+            🏷️ Chi tiết đơn giảm trừ
+          </h3>
+          <span id="discount-orders-count-badge" class="badge" style="background: #fef3c7; color: #b45309; font-weight: 800; font-size: 12px; border-radius: 6px;">0 đơn</span>
+        </div>
+        <button class="btn-icon" onclick="DoanhThuUI.closeDiscountOrdersModal()">✕</button>
+      </div>
+      <div style="padding: 10px 14px; background: #fffbeb; border-bottom: 1px solid #fef3c7; font-size: 12.5px; color: #92400e; display: flex; justify-content: space-between; align-items: center;">
+        <span>Tổng tiền giảm trừ trong kỳ:</span>
+        <span id="discount-orders-total-money" style="font-weight: 800; font-size: 14px; color: #dc2626;">0 đ</span>
+      </div>
+      <div id="discount-orders-list-content" style="flex: 1; overflow-y: auto; padding: 12px; max-height: 70vh;">
+        <!-- Render danh sách đơn giảm trừ -->
       </div>
     </div>
   </div>
@@ -1752,7 +1759,7 @@
   <!-- MODAL: BẢNG KÊ ĐỐI SOÁT CÔNG NỢ (INVOICE) -->
   <!-- ========================================== -->
   <div id="debt-statement-modal" class="modal-backdrop">
-    <div class="modal-sheet" style="max-width: 520px;">
+    <div class="modal-sheet modal-sheet-tall" style="max-width: 600px;">
       <div class="modal-header">
         <h3 class="modal-title">📋 Bảng Kê Đối Soát Công Nợ</h3>
         <button class="btn-icon" onclick="CongNoUI.closeStatementModal()">✕</button>
@@ -2806,6 +2813,204 @@
       <!-- Scrollable Loan Cards List -->
       <div id="asset-all-loans-list-container" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
         <!-- Dynamic Loans List -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL 1: QUẢN LÝ DANH MỤC CHỦNG LOẠI SẢN PHẨM -->
+  <!-- ==================================================================== -->
+  <div id="modal-product-category-settings" class="modal-backdrop">
+    <div class="modal-sheet modal-sheet-tall" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <span>🏷️</span> Quản Lý Chủng Loại Sản Phẩm
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn btn-primary" onclick="SettingsManager.openProductEditModal(null)" style="font-size: 12px; padding: 6px 12px; font-weight: 700;">
+            ➕ Thêm Mới
+          </button>
+          <button type="button" class="btn-icon" onclick="SettingsManager.closeProductCategoryModal()" title="Đóng">✕</button>
+        </div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; margin-bottom: 14px; min-height: 120px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); font-size: 11.5px; text-transform: uppercase;">
+              <th style="padding: 8px 4px; text-align: center; width: 44px;">Icon</th>
+              <th style="padding: 8px;">Tên Sản Phẩm</th>
+              <th style="padding: 8px 6px; text-align: right; width: 85px;">Đơn Giá</th>
+              <th style="padding: 8px 4px; text-align: center; width: 50px;">Dùng</th>
+              <th style="padding: 8px 6px; text-align: center; width: 70px;">Xử lý</th>
+            </tr>
+          </thead>
+          <tbody id="product-category-table-body">
+            <!-- Dynamic rows rendered by SettingsManager.renderProductCategoryTable() -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+        <button type="button" class="btn btn-secondary" onclick="SettingsManager.closeProductCategoryModal()">Đóng</button>
+        <button type="button" class="btn btn-primary" onclick="SettingsManager.handleSaveAndReloadApp()" style="font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          💾 Lưu & Tải Lại
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL 2: THÊM / SỬA CHỦNG LOẠI SẢN PHẨM -->
+  <!-- ==================================================================== -->
+  <div id="modal-product-edit-form" class="modal-backdrop" style="z-index: 1250;">
+    <div class="modal-sheet" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title" id="product-edit-modal-title">
+          ➕ Thêm Chủng Loại Sản Phẩm Mới
+        </div>
+        <button type="button" class="btn-icon" onclick="SettingsManager.closeProductEditModal()" title="Đóng">✕</button>
+      </div>
+
+      <form id="form-product-edit" onsubmit="event.preventDefault(); SettingsManager.handleSaveProductForm();">
+        <input type="hidden" id="prod-form-id" value="" />
+        <input type="hidden" id="prod-form-icon-value" value="🏷️" />
+
+        <!-- Tên đầy đủ (Bắt buộc) -->
+        <div class="form-group">
+          <label class="form-label" style="font-size: 12.5px; font-weight: 700; margin-bottom: 4px; display: block;">
+            Tên đầy đủ <span style="color: #ef4444;">*</span>:
+          </label>
+          <input type="text" id="prod-form-name-full" class="form-control" placeholder="Ví dụ: Bình Lavie 19L có vòi, Đá cây..." required
+            style="font-size: 13px; padding: 8px 10px; width: 100%;" />
+          <span style="font-size: 11px; color: var(--text-secondary);">Dùng cho in ấn hóa đơn, bảng kê công nợ & xuất file báo cáo</span>
+        </div>
+
+        <!-- Hàng: Tên tắt & Icon -->
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 12px; margin-bottom: 12px;">
+          <!-- Tên tắt (Bắt buộc, <= 5 ký tự) -->
+          <div>
+            <label class="form-label" style="font-size: 12.5px; font-weight: 700; margin-bottom: 4px; display: block;">
+              Tên viết tắt (≤ 5 ký tự) <span style="color: #ef4444;">*</span>:
+            </label>
+            <input type="text" id="prod-form-name-short" class="form-control" placeholder="VD: Lavie, Cây..." maxlength="5" required
+              style="font-size: 13px; font-weight: 700; padding: 8px 10px; width: 100%;" />
+            <span style="font-size: 11px; color: var(--text-secondary);">Hiển thị trên nút chọn hàng & bảng giá</span>
+          </div>
+
+          <!-- Icon Picker Trigger -->
+          <div>
+            <label class="form-label" style="font-size: 12.5px; font-weight: 700; margin-bottom: 4px; display: block;">
+              Icon:
+            </label>
+            <button type="button" onclick="SettingsManager.openIconPickerModal()"
+              style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; height: 38px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md, 8px); background: var(--bg-card); cursor: pointer;">
+              <span id="prod-form-icon-preview" style="font-size: 22px;">🏷️</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">Đổi</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hàng: Đơn vị tính & Đơn giá mặc định (+/- 500đ) -->
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; margin-bottom: 12px;">
+          <!-- Đơn vị tính (Bắt buộc) -->
+          <div>
+            <label class="form-label" style="font-size: 12.5px; font-weight: 700; margin-bottom: 4px; display: block;">
+              Đơn vị tính <span style="color: #ef4444;">*</span>:
+            </label>
+            <input type="text" id="prod-form-unit" class="form-control" placeholder="Bình, Bao, Chai, Túi..." required
+              style="font-size: 13px; padding: 8px 10px; width: 100%;" />
+          </div>
+
+          <!-- Đơn giá mặc định (+/- 500đ) (Bắt buộc) -->
+          <div>
+            <label class="form-label" style="font-size: 12.5px; font-weight: 700; margin-bottom: 4px; display: block;">
+              Đơn giá mặc định <span style="color: #ef4444;">*</span>:
+            </label>
+            <div class="counter-mini-box" style="width: 100%; height: 38px;">
+              <button type="button" class="btn-mini-counter" onclick="SettingsManager.adjustModalPrice(-500)" style="width: 34px; font-size: 16px;">−</button>
+              <input type="number" id="prod-form-price" class="input-mini-counter" value="10000" step="500" min="0" required
+                style="font-size: 13.5px; font-weight: 700;" onchange="SettingsManager.onBasePriceChanged(this.value)" />
+              <button type="button" class="btn-mini-counter" onclick="SettingsManager.adjustModalPrice(500)" style="width: 34px; font-size: 16px;">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cài đặt 3 nút chọn nhanh giá tiền -->
+        <div class="form-group" style="margin-bottom: 12px; padding: 10px 12px; background: rgba(2, 132, 199, 0.05); border-radius: var(--radius-md, 8px); border: 1px dashed rgba(2, 132, 199, 0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="font-size: 12.5px; font-weight: 700; color: var(--primary); margin-bottom: 0;">
+              ⚡ 3 Nút Chọn Nhanh Giá Tiền (đ):
+            </label>
+            <button type="button" class="btn btn-secondary" onclick="SettingsManager.autoGenerateQuickPrices()" style="font-size: 11px; padding: 3px 8px; height: auto;">
+              ↺ Gợi ý giá
+            </button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <div>
+              <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 2px;">Nút 1:</span>
+              <input type="number" id="prod-form-price-preset-1" class="form-control" placeholder="6000" step="500" min="0" required
+                style="font-size: 13px; font-weight: 700; padding: 6px 8px; width: 100%; text-align: center;" />
+            </div>
+            <div>
+              <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 2px;">Nút 2:</span>
+              <input type="number" id="prod-form-price-preset-2" class="form-control" placeholder="7000" step="500" min="0" required
+                style="font-size: 13px; font-weight: 700; padding: 6px 8px; width: 100%; text-align: center;" />
+            </div>
+            <div>
+              <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 2px;">Nút 3:</span>
+              <input type="number" id="prod-form-price-preset-3" class="form-control" placeholder="10000" step="500" min="0" required
+                style="font-size: 13px; font-weight: 700; padding: 6px 8px; width: 100%; text-align: center;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Mô tả sản phẩm -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" style="font-size: 12.5px; font-weight: 600; margin-bottom: 4px; display: block;">
+            Mô tả thêm (tùy chọn):
+          </label>
+          <input type="text" id="prod-form-desc" class="form-control" placeholder="Ghi chú chi tiết quy cách đóng gói..."
+            style="font-size: 12.5px; padding: 7px 10px; width: 100%;" />
+        </div>
+
+        <!-- Checkbox dùng hay không -->
+        <div style="margin-top: 14px; margin-bottom: 16px; padding: 10px 12px; background: rgba(0,0,0,0.03); border-radius: var(--radius-md, 8px); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-weight: 700; font-size: 13px; color: var(--text-main);">Kích hoạt kinh doanh</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">Hiển thị trên form tạo đơn hàng và báo cáo</div>
+          </div>
+          <label class="custom-switch-mini">
+            <input type="checkbox" id="prod-form-is-active" checked />
+            <span class="switch-slider-mini"></span>
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn btn-secondary" onclick="SettingsManager.closeProductEditModal()">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-product-form">💾 Lưu Chủng Loại</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL 3: BẢNG CHỌN ICON CHUYÊN NGÀNH NƯỚC & ĐÁ -->
+  <!-- ==================================================================== -->
+  <div id="modal-product-icon-picker" class="modal-backdrop" style="z-index: 1350;">
+    <div class="modal-sheet" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          🎨 Chọn Biểu Tượng Sản Phẩm (Icon)
+        </div>
+        <button type="button" class="btn-icon" onclick="SettingsManager.closeIconPickerModal()" title="Đóng">✕</button>
+      </div>
+
+      <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+        Bấm chọn icon phù hợp với mặt hàng ngành nước hoặc đá của bạn:
+      </div>
+      <div id="icon-picker-grid" class="icon-picker-grid" style="max-height: 50vh; overflow-y: auto; padding: 4px;">
+        <!-- Dynamic icon buttons rendered by SettingsManager.openIconPickerModal() -->
       </div>
     </div>
   </div>

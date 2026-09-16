@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'da-thaiha-pwa-v2.1.0';
+const CACHE_NAME = 'da-thaiha-pwa-v2.2.19';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
